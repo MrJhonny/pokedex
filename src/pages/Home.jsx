@@ -1,8 +1,10 @@
 import PokemonBigCard from '../components/PokemonBigCard';
 import { useEffect, useState } from 'react';
 import PokemonCard from '../components/PokemonCard';
-import SearchBar from '../components/SearchBar';
 import Loader from '../components/Loader';
+import Header from '../components/Header';
+
+import './Home.css'; // opcional para estilos personalizados
 
 const Home = () => {
   const [pokemonList, setPokemonList] = useState([]);
@@ -10,6 +12,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const getAllPokemon = async () => {
@@ -36,37 +39,43 @@ const Home = () => {
     getAllPokemon();
   }, []);
 
-  const handleSearch = (query) => {
+  useEffect(() => {
     const filtered = pokemonList.filter(p =>
-      p.name.toLowerCase().includes(query.toLowerCase()) ||
-      p.id.toString() === query
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.id.toString().includes(searchQuery)
     );
     setFilteredList(filtered);
-  };
+  }, [searchQuery, pokemonList]);
 
   return (
-    <div className="container mt-4">
-      <h1 className="text-center mb-4">Pokédex Didáctica</h1>
-      {error ? (
-        <div className="text-center text-danger fw-bold">Error al cargar los datos.</div>
-      ) : loading ? (
-        <Loader />
-      ) : (
-        <>
-          <SearchBar onSearch={handleSearch} />
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    <div className="home-wrapper">
+      <div className="pokedex-bg-image"></div>
+      <div className="container mt-4 position-relative z-1">
+
+        {error ? (
+          <div className="text-center text-danger fw-bold">Error al cargar los datos.</div>
+        ) : loading ? (
+          <Loader />
+        ) : (
+          <div
+            className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
+            style={{ display: 'flex', flexWrap: 'wrap' }}
+          >
             {filteredList.map(p => (
-              <PokemonCard key={p.id} pokemon={p} onClick={() => setSelectedPokemon(p)} />
+              <div key={p.id} className="col">
+                <PokemonCard pokemon={p} onClick={() => setSelectedPokemon(p)} />
+              </div>
             ))}
           </div>
-        </>
-      )}
-      {selectedPokemon && (
-        <PokemonBigCard
-          pokemon={selectedPokemon}
-          onClose={() => setSelectedPokemon(null)}
-        />
-      )}
+        )}
+        
+        {selectedPokemon && (
+          <PokemonBigCard
+            pokemon={selectedPokemon}
+            onClose={() => setSelectedPokemon(null)}
+          />
+        )}
+      </div>
     </div>
   );
 };

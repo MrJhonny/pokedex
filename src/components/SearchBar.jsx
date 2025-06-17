@@ -1,13 +1,9 @@
 // src/components/SearchBar.jsx
-import React, { useState } from 'react';
+import React from 'react';
 
-const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
-
+const SearchBar = ({ searchQuery, setSearchQuery }) => {
   const handleChange = (e) => {
-    const val = e.target.value;
-    setQuery(val);
-    onSearch(val);
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -16,7 +12,7 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         className="form-control"
         placeholder="Buscar por nombre o número"
-        value={query}
+        value={searchQuery}
         onChange={handleChange}
       />
     </div>

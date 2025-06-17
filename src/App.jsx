@@ -1,14 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
+import Header from './components/Header';
 import Home from './pages/Home';
+import Loader from './components/Loader';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // 2 segundos
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <Home />
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          <Home searchQuery={searchQuery} />
+        </>
+      )}
+    </>
   );
 }
 

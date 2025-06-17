@@ -1,10 +1,11 @@
-// src/components/Loader.jsx
 import React from 'react';
 
-const Loader = () => (
-  <div className="text-center">
-    <img src="/loader.gif" alt="Cargando..." style={{ width: '80px' }} />
-  </div>
-);
+const Loader = () => {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <img src="/loader.gif" alt="Loading..." />
+    </div>
+  );
+};
 
 export default Loader;
