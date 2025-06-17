@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export const typeColors = {
   normal: '#A8A77A',
@@ -22,6 +22,8 @@ export const typeColors = {
 };
 
 const PokemonCard = ({ pokemon, onClick }) => {
+    const [imageSrc, setImageSrc] = useState(pokemon.sprites.front_default);
+
     return (
         <div className="col">
             <div
@@ -30,9 +32,15 @@ const PokemonCard = ({ pokemon, onClick }) => {
                 style={{ cursor: 'pointer' }}
             >
                 <img
-                    src={pokemon.sprites.front_default}
+                    src={imageSrc}
                     alt={pokemon.name}
                     className="card-img-top p-3"
+                    style={{ width: '100%', height: '150px', objectFit: 'contain' }}
+                    onMouseEnter={() => {
+                        const baseName = pokemon.name.toLowerCase().split('-')[0];
+                        setImageSrc(`https://projectpokemon.org/images/normal-sprite/${baseName}.gif`);
+                    }}
+                    onMouseLeave={() => setImageSrc(pokemon.sprites.front_default)}
                 />
                 <div className="card-body">
                     <h5 className="card-title text-capitalize">{pokemon.name}</h5>

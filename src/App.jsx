@@ -22,7 +22,7 @@ function App() {
         <Loader />
       ) : (
         <>
-          <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          {/* <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} /> */}
           <Home searchQuery={searchQuery} />
         </>
       )}

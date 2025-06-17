@@ -5,7 +5,8 @@ import './PokemonBigCard.css';
 const PokemonBigCard = ({ pokemon, onClose }) => {
   if (!pokemon) return null;
 
-  const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${pokemon.name.toLowerCase()}.mp3`;
+  const baseName = pokemon.name.toLowerCase().split('-')[0];
+  const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${baseName}.mp3`;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -21,9 +22,11 @@ const PokemonBigCard = ({ pokemon, onClose }) => {
           </span>
         ))}</p>
         <p><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
-        <audio controls src={cryUrl}>
-          Your browser does not support audio.
-        </audio>
+        <div className="d-flex justify-content-center mt-3">
+          <audio controls src={cryUrl}>
+            Your browser does not support audio.
+          </audio>
+        </div>
       </div>
     </div>
   );

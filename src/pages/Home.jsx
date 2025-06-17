@@ -13,22 +13,23 @@ const Home = () => {
   const [error, setError] = useState(false);
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [offset, setOffset] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(null);
 
   useEffect(() => {
-    const getAllPokemon = async () => {
+    const loadInitialPokemon = async () => {
       try {
-        const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=386');
+        const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100&offset=0');
         const data = await res.json();
-
+        setTotalCount(data.count);
         const fullDetails = await Promise.all(
-          data.results.map(pokemon =>
-            fetch(pokemon.url).then(res => res.json())
-          )
+          data.results.map(p => fetch(p.url).then(res => res.json()))
         );
-
         setPokemonList(fullDetails);
         setFilteredList(fullDetails);
         setLoading(false);
+        setOffset(100);
       } catch (err) {
         console.error('Error al cargar los Pokémon:', err);
         setError(true);
@@ -36,12 +37,12 @@ const Home = () => {
       }
     };
 
-    getAllPokemon();
+    loadInitialPokemon();
   }, []);
 
   useEffect(() => {
     const filtered = pokemonList.filter(p =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.name.split('-')[0].toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.id.toString().includes(searchQuery)
     );
     setFilteredList(filtered);
@@ -57,12 +58,9 @@ const Home = () => {
         ) : loading ? (
           <Loader />
         ) : (
-          <div
-            className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4"
-            style={{ display: 'flex', flexWrap: 'wrap' }}
-          >
+          <div className="row g-4">
             {filteredList.map(p => (
-              <div key={p.id} className="col">
+              <div key={p.id} className="col-6 col-md-3">
                 <PokemonCard pokemon={p} onClick={() => setSelectedPokemon(p)} />
               </div>
             ))}
@@ -74,6 +72,33 @@ const Home = () => {
             pokemon={selectedPokemon}
             onClose={() => setSelectedPokemon(null)}
           />
+        )}
+
+        {totalCount && offset < totalCount && !loading && (
+          <div className="text-center my-4">
+            <button
+              className="btn btn-primary"
+              onClick={async () => {
+                setLoadingMore(true);
+                try {
+                  const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=${offset}`);
+                  const data = await res.json();
+                  const newDetails = await Promise.all(
+                    data.results.map(p => fetch(p.url).then(res => res.json()))
+                  );
+                  const newList = [...pokemonList, ...newDetails];
+                  setPokemonList(newList);
+                  setFilteredList(newList);
+                  setOffset(offset + 100);
+                } catch (err) {
+                  console.error('Error al cargar más Pokémon:', err);
+                }
+                setLoadingMore(false);
+              }}
+            >
+              {loadingMore ? 'Cargando...' : 'Ver más'}
+            </button>
+          </div>
         )}
       </div>
     </div>
