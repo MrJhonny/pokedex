@@ -60,8 +60,10 @@ const Home = () => {
         ) : (
           <div className="row g-4">
             {filteredList.map(p => (
-              <div key={p.id} className="col-6 col-md-3">
-                <PokemonCard pokemon={p} onClick={() => setSelectedPokemon(p)} />
+              <div key={p.id} className="col-6 col-md-3 d-flex card-container">
+                <div className="w-100 d-flex align-items-stretch">
+                  <PokemonCard pokemon={p} onClick={() => setSelectedPokemon(p)} />
+                </div>
               </div>
             ))}
           </div>

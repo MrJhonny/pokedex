@@ -67,7 +67,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
             &rarr;
           </button>
         </div>
-        {/* <h2>{pokemon.name}</h2> */}
+        <h2 className="text-capitalize text-center mt-3">{pokemon.name}</h2>
         <div className="text-center mb-3">
           <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
             {showShiny ? 'Ver Normal' : 'Ver Shiny'}
