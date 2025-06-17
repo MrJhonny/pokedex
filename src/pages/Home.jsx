@@ -71,6 +71,18 @@ const Home = () => {
           <PokemonBigCard
             pokemon={selectedPokemon}
             onClose={() => setSelectedPokemon(null)}
+            onPrev={() => {
+              const currentIndex = filteredList.findIndex(p => p.id === selectedPokemon.id);
+              if (currentIndex > 0) {
+                setSelectedPokemon(filteredList[currentIndex - 1]);
+              }
+            }}
+            onNext={() => {
+              const currentIndex = filteredList.findIndex(p => p.id === selectedPokemon.id);
+              if (currentIndex < filteredList.length - 1) {
+                setSelectedPokemon(filteredList[currentIndex + 1]);
+              }
+            }}
           />
         )}
 

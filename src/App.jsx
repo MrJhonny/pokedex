@@ -24,6 +24,22 @@ function App() {
         <>
           {/* <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} /> */}
           <Home searchQuery={searchQuery} />
+          <div style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 1000,
+            backgroundColor: '#ffc107',
+            padding: '10px',
+            borderRadius: '10px',
+            textAlign: 'center',
+            cursor: 'pointer',
+          }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <img src="/pikachu-jumping.gif" alt="Pikachu" style={{ width: '50px', marginBottom: '5px' }} />
+            <div style={{ fontWeight: 'bold' }}>Ir Arriba</div>
+          </div>
         </>
       )}
     </>
