@@ -22,23 +22,27 @@ function App() {
         <Loader />
       ) : (
         <>
-          {/* <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} /> */}
-          <Home searchQuery={searchQuery} />
-          <div style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            zIndex: 1000,
-            backgroundColor: '#ffc107',
-            padding: '10px',
-            borderRadius: '10px',
-            textAlign: 'center',
-            cursor: 'pointer',
-          }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          >
-            <img src="/pikachu-jumping.gif" alt="Pikachu" style={{ width: '50px', marginBottom: '5px' }} />
-            <div style={{ fontWeight: 'bold' }}>Ir Arriba</div>
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <div style={{ position: 'sticky', top: 0, zIndex: 999 }}>
+              <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            </div>
+            <Home searchQuery={searchQuery} />
+            <div style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              zIndex: 1000,
+              backgroundColor: '#ffc107',
+              padding: '10px',
+              borderRadius: '10px',
+              textAlign: 'center',
+              cursor: 'pointer',
+            }}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <img src="/pikachu-jumping.gif" alt="Pikachu" style={{ width: '50px', marginBottom: '5px' }} />
+              <div style={{ fontWeight: 'bold' }}>Ir Arriba</div>
+            </div>
           </div>
         </>
       )}

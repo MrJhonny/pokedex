@@ -27,8 +27,8 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
   const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${baseName}.mp3`;
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content position-relative" onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 20, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+      <div className="modal-content position-relative" style={{ zIndex: 21, position: 'relative' }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="position-absolute top-0 end-0 m-3 btn btn-link text-dark fs-4" aria-label="Close">
           <FaTimes />
         </button>

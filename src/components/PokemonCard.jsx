@@ -25,37 +25,40 @@ const PokemonCard = ({ pokemon, onClick }) => {
     const [imageSrc, setImageSrc] = useState(pokemon.sprites.front_default);
 
     return (
-        <div className="col">
-            <div
-                className="card text-center h-100"
-                onClick={() => onClick?.(pokemon)}
-                style={{ cursor: 'pointer' }}
-            >
-                <img
-                    src={imageSrc}
-                    alt={pokemon.name}
-                    className="card-img-top p-3"
-                    style={{ width: '100%', height: '150px', objectFit: 'contain' }}
-                    onMouseEnter={() => {
-                        const baseName = pokemon.name.toLowerCase().split('-')[0];
-                        setImageSrc(`https://projectpokemon.org/images/normal-sprite/${baseName}.gif`);
-                    }}
-                    onMouseLeave={() => setImageSrc(pokemon.sprites.front_default)}
-                />
-                <div className="card-body">
-                    <h5 className="card-title text-capitalize">{pokemon.name}</h5>
-                    <p className="card-text">N.º {pokemon.id}</p>
-                    <div>
-                        {pokemon.types.map((t, idx) => (
-                            <span
-                              key={idx}
-                              className="badge me-1"
-                              style={{ backgroundColor: typeColors[t.type.name] || '#999', color: '#fff' }}
-                            >
-                                {t.type.name}
-                            </span>
-                        ))}
-                    </div>
+        <div
+            className="card text-center h-100"
+            onClick={() => onClick?.(pokemon)}
+            style={{
+                cursor: 'pointer',
+                width: '100%',
+                maxWidth: '250px',
+                margin: '0 auto',
+            }}
+        >
+            <img
+                src={imageSrc}
+                alt={pokemon.name}
+                className="card-img-top p-3"
+                style={{ width: '100%', height: '150px', objectFit: 'contain' }}
+                onMouseEnter={() => {
+                    const baseName = pokemon.name.toLowerCase().split('-')[0];
+                    setImageSrc(`https://projectpokemon.org/images/normal-sprite/${baseName}.gif`);
+                }}
+                onMouseLeave={() => setImageSrc(pokemon.sprites.front_default)}
+            />
+            <div className="card-body">
+                <h5 className="card-title text-capitalize">{pokemon.name}</h5>
+                <p className="card-text">N.º {pokemon.id}</p>
+                <div>
+                    {pokemon.types.map((t, idx) => (
+                        <span
+                          key={idx}
+                          className="badge me-1"
+                          style={{ backgroundColor: typeColors[t.type.name] || '#999', color: '#fff' }}
+                        >
+                            {t.type.name}
+                        </span>
+                    ))}
                 </div>
             </div>
         </div>
