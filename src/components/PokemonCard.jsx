@@ -24,6 +24,11 @@ export const typeColors = {
 const PokemonCard = ({ pokemon, onClick }) => {
     const [imageSrc, setImageSrc] = useState(pokemon.sprites.front_default);
 
+    const types = pokemon.types.map(t => t.type.name);
+    const gradientBackground = types.length === 2
+      ? `linear-gradient(120deg, ${typeColors[types[0]]} 45%, ${typeColors[types[1]]} 55%)`
+      : typeColors[types[0]];
+
     return (
         <div
             className="card text-center h-100"
@@ -33,6 +38,10 @@ const PokemonCard = ({ pokemon, onClick }) => {
                 width: '100%',
                 maxWidth: '250px',
                 margin: '0 auto',
+                background: gradientBackground,
+                color: '#fff',
+                border: '2px solid #fff',
+                borderRadius: '10px'
             }}
         >
             <img
@@ -54,7 +63,13 @@ const PokemonCard = ({ pokemon, onClick }) => {
                         <span
                           key={idx}
                           className="badge me-1"
-                          style={{ backgroundColor: typeColors[t.type.name] || '#999', color: '#fff' }}
+                          style={{
+                            backgroundColor: typeColors[t.type.name] || '#999',
+                            color: '#fff',
+                            border: '1px solid black',
+                            padding: '2px 6px',
+                            borderRadius: '8px'
+                          }}
                         >
                             {t.type.name}
                         </span>
@@ -66,3 +81,4 @@ const PokemonCard = ({ pokemon, onClick }) => {
 };
 
 export default PokemonCard;
+
