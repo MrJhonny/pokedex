@@ -67,11 +67,11 @@ const Header = ({
   searchQuery,
   setSearchQuery,
   onTypeFilterChange,
-  onRegionFilterChange,
+  setSelectedRegions,
   bigCardOpen
 }) => {
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [selectedRegions, setSelectedRegions] = useState([]);
+  const [selectedRegionsInternal, setSelectedRegionsInternal] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
 
   const sidebarRef = useRef(null);
@@ -148,13 +148,13 @@ const Header = ({
   // Handle region filter toggle
   const toggleRegion = (region) => {
     let updated;
-    if (selectedRegions.includes(region)) {
-      updated = selectedRegions.filter(r => r !== region);
+    if (selectedRegionsInternal.includes(region)) {
+      updated = selectedRegionsInternal.filter(r => r !== region);
     } else {
-      updated = [...selectedRegions, region];
+      updated = [...selectedRegionsInternal, region];
     }
+    setSelectedRegionsInternal(updated);
     setSelectedRegions(updated);
-    onRegionFilterChange(updated);
   };
 
   return (
@@ -244,10 +244,10 @@ const Header = ({
           className="btn btn-sm btn-danger mb-3 w-100"
           onClick={() => {
             setSelectedTypes([]);
+            setSelectedRegionsInternal([]);
             setSelectedRegions([]);
             setSearchQuery('');
             onTypeFilterChange([]);
-            onRegionFilterChange([]);
           }}
         >
           Reset Filters
@@ -375,7 +375,7 @@ const Header = ({
               <div
                 key={region}
                 className={`form-check text-center text-capitalize rounded-pill fw-bold shadow-sm ${
-                  selectedRegions.includes(region)
+                  selectedRegionsInternal.includes(region)
                     ? 'bg-primary text-white border border-light'
                     : 'bg-light text-dark border border-secondary'
                 }`}
@@ -388,7 +388,7 @@ const Header = ({
                 }}
                 onClick={() => toggleRegion(region)}
                 role="checkbox"
-                aria-checked={selectedRegions.includes(region)}
+                aria-checked={selectedRegionsInternal.includes(region)}
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === ' ' || e.key === 'Enter') {
@@ -401,7 +401,7 @@ const Header = ({
                   type="checkbox"
                   id={`region-${region}`}
                   value={region}
-                  checked={selectedRegions.includes(region)}
+                  checked={selectedRegionsInternal.includes(region)}
                   onChange={() => {}}
                   style={{ display: 'none' }}
                   tabIndex={-1}

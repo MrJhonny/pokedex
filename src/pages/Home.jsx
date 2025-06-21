@@ -19,48 +19,6 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [inputSequence, setInputSequence] = useState('');
 
-  useEffect(() => {
-    const loadPokemonBatch = async (batchOffset) => {
-      try {
-        const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=${batchOffset}`);
-        const data = await res.json();
-        if (totalCount === null) setTotalCount(data.count);
-        const fullDetails = await Promise.all(
-          data.results.map(p => fetch(p.url).then(res => res.json()))
-        );
-        setPokemonList(prev => [...prev, ...fullDetails]);
-        setFilteredList(prev => {
-          let updatedList = [...prev, ...fullDetails];
-          if (searchQuery.trim()) {
-            updatedList = updatedList.filter(p =>
-              p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              p.id.toString().includes(searchQuery)
-            );
-          }
-          if (selectedTypes.length > 0) {
-            updatedList = updatedList.filter(p =>
-              p.types.some(t => selectedTypes.includes(t.type.name))
-            );
-          }
-          if (selectedRegions.length > 0) {
-            updatedList = updatedList.filter(p => 
-              p.game_indices.some(gi => selectedRegions.includes(gi.version.name))
-            );
-          }
-          return updatedList;
-        });
-        setOffset(prev => prev + 100);
-      } catch (err) {
-        console.error('Error al cargar los Pokémon:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadPokemonBatch(0);
-  }, []);
-
   const regionRanges = {
     kanto: [1, 151],
     johto: [152, 251],
@@ -72,6 +30,33 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
     galar: [810, 898],
     paldea: [899, 1010], // ejemplo, según generaciones
   };
+
+  useEffect(() => {
+    const loadPokemonBatch = async (batchOffset) => {
+      try {
+        const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=${batchOffset}`);
+        const data = await res.json();
+        if (totalCount === null) setTotalCount(data.count);
+        const fullDetails = await Promise.all(
+          data.results.map(p => fetch(p.url).then(res => res.json()))
+        );
+        setPokemonList(prev => {
+          const combined = [...prev, ...fullDetails];
+          const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
+          return unique;
+        });
+        setFilteredList(prev => [...prev, ...fullDetails]);
+        setOffset(prev => prev + 100);
+      } catch (err) {
+        console.error('Error al cargar los Pokémon:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPokemonBatch(0);
+  }, []);
 
   useEffect(() => {
     if (!pokemonList.length) return;
@@ -95,13 +80,13 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
 
     // Filtrar por regiones (si hay)
     if (selectedRegions && selectedRegions.length > 0) {
-      filtered = filtered.filter(p => {
-        // Obtener rango(s) de regiones seleccionadas
-        return selectedRegions.some(region => {
-          const [minId, maxId] = regionRanges[region];
-          return p.id >= minId && p.id <= maxId;
-        });
+      const regionIds = selectedRegions.flatMap(region => {
+        const range = regionRanges[region];
+        if (!range) return [];
+        const [minId, maxId] = range;
+        return Array.from({ length: maxId - minId + 1 }, (_, i) => i + minId);
       });
+      filtered = filtered.filter(p => regionIds.includes(p.id));
     }
 
     setFilteredList(filtered);
@@ -121,27 +106,12 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
             return Promise.all(data.results.map(p => fetch(p.url).then(res => res.json())));
           })
           .then(newDetails => {
-            setPokemonList(prev => [...prev, ...newDetails]);
-            setFilteredList(prev => {
-              let updatedList = [...prev, ...newDetails];
-              if (searchQuery.trim()) {
-                updatedList = updatedList.filter(p =>
-                  p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  p.id.toString().includes(searchQuery)
-                );
-              }
-              if (selectedTypes.length > 0) {
-                updatedList = updatedList.filter(p =>
-                  p.types.some(t => selectedTypes.includes(t.type.name))
-                );
-              }
-              if (selectedRegions.length > 0) {
-                updatedList = updatedList.filter(p => 
-                  p.game_indices.some(gi => selectedRegions.includes(gi.version.name))
-                );
-              }
-              return updatedList;
+            setPokemonList(prev => {
+              const combined = [...prev, ...newDetails];
+              const unique = Array.from(new Map(combined.map(p => [p.id, p])).values());
+              return unique;
             });
+            setFilteredList(prev => [...prev, ...newDetails]);
             setOffset(prev => prev + 100);
           })
           .catch(err => {
