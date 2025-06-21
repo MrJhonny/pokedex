@@ -20,7 +20,7 @@ const UpArrow = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!visible) return null;
+  if (!visible || document.body.classList.contains('hide-uparrow')) return null;
 
   return (
     <div

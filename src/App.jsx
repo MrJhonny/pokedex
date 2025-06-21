@@ -3,10 +3,13 @@ import './App.css'
 import Header from './components/Header';
 import Home from './pages/Home';
 import Loader from './components/Loader';
+import UpArrow from './components/UpArrow';
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const [filteredTypes, setFilteredTypes] = useState([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,26 +26,22 @@ function App() {
       ) : (
         <>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <div style={{ position: 'sticky', top: 0, zIndex: 999 }}>
-              <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <div className={`header-wrapper ${selectedPokemon ? 'behind-bigcard' : ''}`} style={selectedPokemon ? { pointerEvents: 'none' } : {}}>
+              <Header
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedPokemon={selectedPokemon}
+                setSelectedPokemon={setSelectedPokemon}
+                onTypeFilterChange={setFilteredTypes}
+              />
             </div>
-            <Home searchQuery={searchQuery} />
-            <div style={{
-              position: 'fixed',
-              bottom: '20px',
-              right: '20px',
-              zIndex: 1000,
-              backgroundColor: '#ffc107',
-              padding: '10px',
-              borderRadius: '10px',
-              textAlign: 'center',
-              cursor: 'pointer',
-            }}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            >
-              <img src="/pikachu-jumping.gif" alt="Pikachu" style={{ width: '50px', marginBottom: '5px' }} />
-              <div style={{ fontWeight: 'bold' }}>Ir Arriba</div>
-            </div>
+            <Home
+              searchQuery={searchQuery}
+              selectedPokemon={selectedPokemon}
+              setSelectedPokemon={setSelectedPokemon}
+              selectedTypes={filteredTypes}
+            />
+            {!selectedPokemon && <UpArrow />}
           </div>
         </>
       )}

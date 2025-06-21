@@ -2,10 +2,11 @@ import PokemonBigCard from '../components/PokemonBigCard';
 import { useEffect, useState } from 'react';
 import PokemonCard from '../components/PokemonCard';
 import Loader from '../components/Loader';
+import LoaderMini from '../components/LoaderMini';
 
 import './Home.css'; // opcional para estilos personalizados
 
-const Home = ({ searchQuery }) => {
+const Home = ({ searchQuery, selectedTypes = [] }) => {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,21 @@ const Home = ({ searchQuery }) => {
           data.results.map(p => fetch(p.url).then(res => res.json()))
         );
         setPokemonList(prev => [...prev, ...fullDetails]);
-        setFilteredList(prev => [...prev, ...fullDetails]);
+        setFilteredList(prev => {
+          let updatedList = [...prev, ...fullDetails];
+          if (searchQuery.trim()) {
+            updatedList = updatedList.filter(p =>
+              p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              p.id.toString().includes(searchQuery)
+            );
+          }
+          if (selectedTypes.length > 0) {
+            updatedList = updatedList.filter(p =>
+              p.types.some(t => selectedTypes.includes(t.type.name))
+            );
+          }
+          return updatedList;
+        });
         setOffset(prev => prev + 100);
       } catch (err) {
         console.error('Error al cargar los Pokémon:', err);
@@ -39,17 +54,23 @@ const Home = ({ searchQuery }) => {
   }, []);
 
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredList(pokemonList);
-      return;
+    let filtered = pokemonList;
+
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.id.toString().includes(searchQuery)
+      );
     }
 
-    const filtered = pokemonList.filter(p =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.id.toString().includes(searchQuery)
-    );
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter(p =>
+        p.types.some(t => selectedTypes.includes(t.type.name))
+      );
+    }
+
     setFilteredList(filtered);
-  }, [searchQuery, pokemonList]);
+  }, [searchQuery, selectedTypes, pokemonList]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +87,21 @@ const Home = ({ searchQuery }) => {
           })
           .then(newDetails => {
             setPokemonList(prev => [...prev, ...newDetails]);
-            setFilteredList(prev => [...prev, ...newDetails]);
+            setFilteredList(prev => {
+              let updatedList = [...prev, ...newDetails];
+              if (searchQuery.trim()) {
+                updatedList = updatedList.filter(p =>
+                  p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.id.toString().includes(searchQuery)
+                );
+              }
+              if (selectedTypes.length > 0) {
+                updatedList = updatedList.filter(p =>
+                  p.types.some(t => selectedTypes.includes(t.type.name))
+                );
+              }
+              return updatedList;
+            });
             setOffset(prev => prev + 100);
           })
           .catch(err => {
@@ -82,9 +117,17 @@ const Home = ({ searchQuery }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [offset, totalCount, loadingMore]);
 
+  useEffect(() => {
+    if (selectedPokemon) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+  }, [selectedPokemon]);
+
   return (
-    <>
-      <div className="home-wrapper" style={{ paddingTop: '60px' }}>
+    <div className={`page-wrapper ${selectedPokemon ? 'bigcard-open' : ''}`}>
+      <div className={`home-wrapper ${selectedPokemon ? 'no-scroll' : ''}`} style={{ paddingTop: '60px' }}>
         <div className="pokedex-bg-image"></div>
         <div className="container mt-4 position-relative">
 
@@ -93,7 +136,7 @@ const Home = ({ searchQuery }) => {
         ) : loading ? (
           <Loader />
         ) : (
-          <div className="d-flex flex-wrap justify-content-center gap-4">
+          <div className="pokemon-grid d-flex flex-wrap justify-content-center gap-4">
             {filteredList.map(p => (
               <div key={p.id} style={{ width: '200px' }}>
                 <PokemonCard pokemon={p} onClick={() => setSelectedPokemon(p)} />
@@ -101,9 +144,17 @@ const Home = ({ searchQuery }) => {
             ))}
           </div>
         )}
+
+        {loadingMore && (
+          <div className="d-flex justify-content-center w-100 mt-4 mb-4">
+            <div style={{ width: '80px', height: '80px' }}>
+              <LoaderMini />
+            </div>
+          </div>
+        )}
         
         {selectedPokemon && (
-          <div style={{ zIndex: 1050, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
+          <div style={{ zIndex: 1100, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
             <PokemonBigCard
               pokemon={selectedPokemon}
               onClose={() => setSelectedPokemon(null)}
@@ -125,7 +176,7 @@ const Home = ({ searchQuery }) => {
 
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

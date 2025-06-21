@@ -40,3 +40,8 @@
 .read-the-docs {
   color: #888;
 }
+
+.behind-bigcard {
+  z-index: 1 !important;
+  position: relative;
+}

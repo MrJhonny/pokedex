@@ -8,6 +8,19 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
   if (!pokemon) return null;
 
   useEffect(() => {
+    const event = new CustomEvent('bigcard-toggle', { detail: true });
+    window.dispatchEvent(event);
+    document.body.classList.add('bigcard-open');
+    document.body.classList.add('hide-uparrow');
+    return () => {
+      const event = new CustomEvent('bigcard-toggle', { detail: false });
+      window.dispatchEvent(event);
+      document.body.classList.remove('bigcard-open');
+      document.body.classList.remove('hide-uparrow');
+    };
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowLeft') {
         onPrev && onPrev();
@@ -21,14 +34,21 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     };
   }, [onPrev, onNext]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   const [showShiny, setShowShiny] = useState(false);
 
   const baseName = pokemon.name.toLowerCase().split('-')[0];
   const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${baseName}.mp3`;
 
   return (
-    <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 20, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      <div className="modal-content position-relative" style={{ zIndex: 21, position: 'relative' }} onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 100000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+      <div className="modal-content position-relative" style={{ zIndex: 100001, position: 'relative' }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="position-absolute top-0 end-0 m-3 btn btn-link text-dark fs-4" aria-label="Close">
           <FaTimes />
         </button>

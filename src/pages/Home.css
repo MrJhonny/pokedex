@@ -20,3 +20,17 @@
   position: relative;
   z-index: 1;
 }
+
+@media (max-width: 768px) {
+  .pokemon-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    justify-items: center;
+  }
+
+  .pokemon-grid > div {
+    width: 100% !important;
+    max-width: 160px; /* ajustable según tus cartas */
+  }
+}

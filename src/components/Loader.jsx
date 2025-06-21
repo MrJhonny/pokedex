@@ -8,19 +8,25 @@ const Loader = () => {
         justifyContent: 'center',
         alignItems: 'center',
         width: '100vw',
-        height: '100vh',
+        height: '100dvh',
         backgroundImage: "url('/background.gif')",
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#f2f2f2',
         overflow: 'hidden',
+        position: 'fixed',
+        inset: 0
       }}
     >
       <img
         src="/Running-Pikachu-GIF.webp"
         alt="Loading..."
-        style={{ width: '150px', height: 'auto' }}
+        style={{
+          width: 'min(60vw, 300px)',
+          height: 'auto',
+          maxWidth: '1000%'
+        }}
       />
     </div>
   );

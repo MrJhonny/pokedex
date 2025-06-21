@@ -5,7 +5,7 @@
   width: 100%;
   margin: 0;
   padding: 1rem 2rem;
-  z-index: 1000;
+  z-index: 5;
   background-color: #1e1e1e;
   color: #fff;
   display: flex;
@@ -27,4 +27,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.type-filter.selected {
+  outline: 3px solid #fff;
+  transform: scale(1.05);
+}
+
+.bigcard-open .header {
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
 }
