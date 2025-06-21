@@ -62,11 +62,27 @@ export const typeColors = {
   fairy: '#D685AD',
 };
 
-const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }) => {
+const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilterChange, bigCardOpen }) => {
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedRegions, setSelectedRegions] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
 
   const sidebarRef = useRef(null);
+
+  const phrases = [
+    "I choose you!",
+    "Gotta catch 'em all!",
+    "Pikachu, Thunderbolt!",
+    "It's super effective!",
+    "Team Rocket's blasting off again!",
+    "Believe in the heart of your Pokémon!",
+    "Battle hard, train harder!",
+    "Pokémon, let's go!",
+    "Ash, we're counting on you!",
+    "Eevee, use Quick Attack!"
+  ];
+
+  const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -82,22 +98,54 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }
     };
 
     if (showSidebar) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     };
   }, [showSidebar]);
 
+  // Responsive title style for Pokedex
+  const pokedexTitleStyle = {
+    fontSize: '1.25rem',
+  };
+  const smallScreenStyle = typeof window !== 'undefined' && window.innerWidth < 576 ? { fontSize: '1rem' } : {};
+
   return (
     <>
-      <nav className={`navbar navbar-expand-lg navbar-dark bg-dark`} style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: bigCardOpen ? 1 : 1000, pointerEvents: bigCardOpen ? 'none' : 'auto' }}>
-        <a className="navbar-brand ms-3" href="#">Pokedex</a>
-        <div className="d-flex justify-content-between align-items-center w-100 px-3">
-          <div></div>
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3 py-2"
+           style={{
+             position: 'fixed',
+             top: 0,
+             left: 0,
+             width: '100%',
+             zIndex: bigCardOpen ? 1 : 1000,
+             pointerEvents: bigCardOpen ? 'none' : 'auto'
+           }}
+      >
+        <div className="d-flex flex-column justify-content-center align-items-center text-center w-100" style={{ height: '56px' }}>
+          <div className="navbar-brand mb-0 h1" style={{ ...pokedexTitleStyle, ...smallScreenStyle }}>
+            Pokedex
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#ccc' }}>
+            {randomPhrase}
+          </div>
+        </div>
+        <div className="position-absolute top-0 end-0 pe-2 d-flex align-items-center h-100">
           <button
             className="btn btn-outline-light"
             onClick={() => setShowSidebar(true)}
@@ -106,6 +154,22 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }
           </button>
         </div>
       </nav>
+      {showSidebar && (
+        <div
+          className="sidebar-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100%',
+            width: '100%',
+            backdropFilter: 'blur(6px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            zIndex: 1040,
+            transition: 'opacity 0.3s ease-in-out'
+          }}
+        />
+      )}
       <div
         ref={sidebarRef}
         className={`sidebar bg-dark text-white p-3 ${showSidebar ? 'show' : ''}`}
@@ -118,7 +182,8 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }
           zIndex: 1050,
           transform: showSidebar ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s ease-in-out',
-          boxShadow: '-2px 0 5px rgba(0,0,0,0.5)'
+          boxShadow: '-2px 0 5px rgba(0,0,0,0.5)',
+          overflowY: 'auto'
         }}
       >
         <button
@@ -126,6 +191,18 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }
           onClick={() => setShowSidebar(false)}
         >
           Close ✖
+        </button>
+        <button
+          className="btn btn-sm btn-danger mb-3 w-100"
+          onClick={() => {
+            setSelectedTypes([]);
+            setSelectedRegions([]);
+            setSearchQuery('');
+            onTypeFilterChange([]);
+            onRegionFilterChange([]);
+          }}
+        >
+          Reset Filters
         </button>
         <div className="mb-3">
           <form className="d-flex" onSubmit={(e) => e.preventDefault()}>
@@ -140,15 +217,6 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }
         </div>
         <div>
           <h5 className="mb-3">Types</h5>
-          <button
-            className="btn btn-sm btn-light mb-2"
-            onClick={() => {
-              setSelectedTypes([]);
-              onTypeFilterChange([]);
-            }}
-          >
-            Clear selection
-          </button>
           <div
             className="d-grid"
             style={{
@@ -208,6 +276,54 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, bigCardOpen }
                       filter: 'brightness(0) invert(1)'
                     }}
                   />
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-4">
+          <h5 className="mb-3">Regions</h5>
+          <div
+            className="d-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, auto)',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            {['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'].map(region => (
+              <div
+                key={region}
+                className={`form-check text-center text-capitalize rounded-pill fw-bold shadow-sm ${
+                  selectedRegions?.includes(region)
+                    ? 'bg-primary text-white border border-light'
+                    : 'bg-light text-dark border border-secondary'
+                }`}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  userSelect: 'none'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id={`region-${region}`}
+                  value={region}
+                  checked={selectedRegions?.includes(region)}
+                  onChange={(e) => {
+                    const updated = e.target.checked
+                      ? [...selectedRegions, region]
+                      : selectedRegions.filter(r => r !== region);
+                    setSelectedRegions(updated);
+                    onRegionFilterChange(updated);
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor={`region-${region}`} className="w-100">
+                  {region}
                 </label>
               </div>
             ))}

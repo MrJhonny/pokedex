@@ -16,6 +16,9 @@ const Home = ({ searchQuery, selectedTypes = [] }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(null);
 
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const [inputSequence, setInputSequence] = useState('');
+
   useEffect(() => {
     const loadPokemonBatch = async (batchOffset) => {
       try {
@@ -125,6 +128,44 @@ const Home = ({ searchQuery, selectedTypes = [] }) => {
     }
   }, [selectedPokemon]);
 
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      setInputSequence(prev => {
+        const next = (prev + e.key).slice(-20); // limita largo
+        if (next.toLowerCase().endsWith('opening')) {
+          setShowEasterEgg(true);
+          setInputSequence(''); // limpiar el input
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showEasterEgg && !document.querySelector('.easter-iframe-wrapper')?.contains(e.target)) {
+        setShowEasterEgg(false);
+      }
+    };
+
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setShowEasterEgg(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [showEasterEgg]);
+
   return (
     <div className={`page-wrapper ${selectedPokemon ? 'bigcard-open' : ''}`}>
       <div className={`home-wrapper ${selectedPokemon ? 'no-scroll' : ''}`} style={{ paddingTop: '60px' }}>
@@ -176,6 +217,53 @@ const Home = ({ searchQuery, selectedTypes = [] }) => {
 
         </div>
       </div>
+      {showEasterEgg && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div className="easter-iframe-wrapper" style={{ position: 'relative', width: '90%', maxWidth: '800px' }}>
+            <iframe
+              width="100%"
+              height="450"
+              src="https://www.youtube.com/embed/6xKWiCMKKJg?autoplay=1"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            ></iframe>
+            <button
+              onClick={() => setShowEasterEgg(false)}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '8px',
+                width: '40px',
+                height: '40px',
+                cursor: 'pointer',
+                fontSize: '28px',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
+              }}
+            >
+              ❌
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
