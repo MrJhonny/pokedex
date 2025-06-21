@@ -25,8 +25,9 @@ const Loader = () => {
         style={{
           width: 'min(60vw, 300px)',
           height: 'auto',
-          maxWidth: '1000%'
+          maxWidth: '1000%',
         }}
+        className="loader-image"
       />
     </div>
   );
