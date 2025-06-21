@@ -74,6 +74,8 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   };
 
   useEffect(() => {
+    if (!pokemonList.length) return;
+
     let filtered = pokemonList;
 
     // Filtrar por nombre o id (searchQuery)

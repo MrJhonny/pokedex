@@ -76,7 +76,7 @@ const Header = ({
 
   const sidebarRef = useRef(null);
 
-  // Random phrases for fun below Pokedex title
+  // Random phrases
   const phrases = [
     "I choose you!",
     "Gotta catch 'em all!",
