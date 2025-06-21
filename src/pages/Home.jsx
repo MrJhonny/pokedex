@@ -6,7 +6,7 @@ import LoaderMini from '../components/LoaderMini';
 
 import './Home.css'; // opcional para estilos personalizados
 
-const Home = ({ searchQuery, selectedTypes = [] }) => {
+const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelectedRegions }) => {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +42,11 @@ const Home = ({ searchQuery, selectedTypes = [] }) => {
               p.types.some(t => selectedTypes.includes(t.type.name))
             );
           }
+          if (selectedRegions.length > 0) {
+            updatedList = updatedList.filter(p => 
+              p.game_indices.some(gi => selectedRegions.includes(gi.version.name))
+            );
+          }
           return updatedList;
         });
         setOffset(prev => prev + 100);
@@ -72,8 +77,14 @@ const Home = ({ searchQuery, selectedTypes = [] }) => {
       );
     }
 
+    if (selectedRegions.length > 0) {
+      filtered = filtered.filter(p => 
+        p.game_indices.some(gi => selectedRegions.includes(gi.version.name))
+      );
+    }
+
     setFilteredList(filtered);
-  }, [searchQuery, selectedTypes, pokemonList]);
+  }, [searchQuery, selectedTypes, selectedRegions, pokemonList]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,6 +112,11 @@ const Home = ({ searchQuery, selectedTypes = [] }) => {
               if (selectedTypes.length > 0) {
                 updatedList = updatedList.filter(p =>
                   p.types.some(t => selectedTypes.includes(t.type.name))
+                );
+              }
+              if (selectedRegions.length > 0) {
+                updatedList = updatedList.filter(p => 
+                  p.game_indices.some(gi => selectedRegions.includes(gi.version.name))
                 );
               }
               return updatedList;

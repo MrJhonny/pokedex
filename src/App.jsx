@@ -10,11 +10,12 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [filteredTypes, setFilteredTypes] = useState([]);
+  const [selectedRegions, setSelectedRegions] = useState([]); // Estado para regiones
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // 2 segundos
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -33,6 +34,8 @@ function App() {
                 selectedPokemon={selectedPokemon}
                 setSelectedPokemon={setSelectedPokemon}
                 onTypeFilterChange={setFilteredTypes}
+                selectedRegions={selectedRegions}        // Pasar regiones
+                setSelectedRegions={setSelectedRegions}  // Pasar setter
               />
             </div>
             <Home
@@ -40,6 +43,7 @@ function App() {
               selectedPokemon={selectedPokemon}
               setSelectedPokemon={setSelectedPokemon}
               selectedTypes={filteredTypes}
+              selectedRegions={selectedRegions}        // Pasar regiones para filtrar
             />
             {!selectedPokemon && <UpArrow />}
           </div>
@@ -49,4 +53,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
