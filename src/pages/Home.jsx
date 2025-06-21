@@ -61,9 +61,22 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
     loadPokemonBatch(0);
   }, []);
 
+  const regionRanges = {
+    kanto: [1, 151],
+    johto: [152, 251],
+    hoenn: [252, 386],
+    sinnoh: [387, 493],
+    unova: [494, 649],
+    kalos: [650, 721],
+    alola: [722, 809],
+    galar: [810, 898],
+    paldea: [899, 1010], // ejemplo, según generaciones
+  };
+
   useEffect(() => {
     let filtered = pokemonList;
 
+    // Filtrar por nombre o id (searchQuery)
     if (searchQuery.trim()) {
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,16 +84,22 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
       );
     }
 
-    if (selectedTypes.length > 0) {
+    // Filtrar por tipos (si hay)
+    if (selectedTypes && selectedTypes.length > 0) {
       filtered = filtered.filter(p =>
         p.types.some(t => selectedTypes.includes(t.type.name))
       );
     }
 
-    if (selectedRegions.length > 0) {
-      filtered = filtered.filter(p => 
-        p.game_indices.some(gi => selectedRegions.includes(gi.version.name))
-      );
+    // Filtrar por regiones (si hay)
+    if (selectedRegions && selectedRegions.length > 0) {
+      filtered = filtered.filter(p => {
+        // Obtener rango(s) de regiones seleccionadas
+        return selectedRegions.some(region => {
+          const [minId, maxId] = regionRanges[region];
+          return p.id >= minId && p.id <= maxId;
+        });
+      });
     }
 
     setFilteredList(filtered);

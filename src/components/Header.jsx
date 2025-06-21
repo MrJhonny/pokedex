@@ -1,3 +1,4 @@
+// src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -62,13 +63,20 @@ export const typeColors = {
   fairy: '#D685AD',
 };
 
-const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilterChange, bigCardOpen }) => {
+const Header = ({
+  searchQuery,
+  setSearchQuery,
+  onTypeFilterChange,
+  onRegionFilterChange,
+  bigCardOpen
+}) => {
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
 
   const sidebarRef = useRef(null);
 
+  // Random phrases for fun below Pokedex title
   const phrases = [
     "I choose you!",
     "Gotta catch 'em all!",
@@ -81,22 +89,20 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
     "Ash, we're counting on you!",
     "Eevee, use Quick Attack!"
   ];
-
   const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
 
+  // Close sidebar on click outside or ESC
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setShowSidebar(false);
       }
     };
-
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         setShowSidebar(false);
       }
     };
-
     if (showSidebar) {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
@@ -109,7 +115,6 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
       document.body.style.position = '';
       document.body.style.width = '';
     }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
@@ -119,41 +124,81 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
     };
   }, [showSidebar]);
 
-  // Responsive title style for Pokedex
+  // Responsive font size for title
   const pokedexTitleStyle = {
     fontSize: '1.25rem',
   };
-  const smallScreenStyle = typeof window !== 'undefined' && window.innerWidth < 576 ? { fontSize: '1rem' } : {};
+  const smallScreenStyle =
+    typeof window !== 'undefined' && window.innerWidth < 576
+      ? { fontSize: '1rem' }
+      : {};
+
+  // Handle type filter toggle
+  const toggleType = (type) => {
+    let updated;
+    if (selectedTypes.includes(type)) {
+      updated = selectedTypes.filter(t => t !== type);
+    } else {
+      updated = [...selectedTypes, type];
+    }
+    setSelectedTypes(updated);
+    onTypeFilterChange(updated);
+  };
+
+  // Handle region filter toggle
+  const toggleRegion = (region) => {
+    let updated;
+    if (selectedRegions.includes(region)) {
+      updated = selectedRegions.filter(r => r !== region);
+    } else {
+      updated = [...selectedRegions, region];
+    }
+    setSelectedRegions(updated);
+    onRegionFilterChange(updated);
+  };
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3 py-2"
-           style={{
-             position: 'fixed',
-             top: 0,
-             left: 0,
-             width: '100%',
-             zIndex: bigCardOpen ? 1 : 1000,
-             pointerEvents: bigCardOpen ? 'none' : 'auto'
-           }}
+      <nav
+        className="navbar navbar-expand-lg navbar-dark bg-dark px-3 py-2"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: bigCardOpen ? 1 : 1000,
+          pointerEvents: bigCardOpen ? 'none' : 'auto',
+        }}
       >
-        <div className="d-flex flex-column justify-content-center align-items-center text-center w-100" style={{ height: '56px' }}>
-          <div className="navbar-brand mb-0 h1" style={{ ...pokedexTitleStyle, ...smallScreenStyle }}>
+        <div
+          className="d-flex flex-column justify-content-center align-items-center text-center w-100"
+          style={{ height: '56px' }}
+        >
+          <div
+            className="navbar-brand mb-0 h1"
+            style={{ ...pokedexTitleStyle, ...smallScreenStyle }}
+          >
             Pokedex
           </div>
           <div style={{ fontSize: '0.75rem', color: '#ccc' }}>
             {randomPhrase}
           </div>
         </div>
+
+        {/* Hamburger menu button */}
         <div className="position-absolute top-0 end-0 pe-2 d-flex align-items-center h-100">
           <button
             className="btn btn-outline-light"
             onClick={() => setShowSidebar(true)}
+            aria-label="Toggle filters menu"
+            aria-expanded={showSidebar}
           >
             ☰
           </button>
         </div>
       </nav>
+
+      {/* Backdrop blur */}
       {showSidebar && (
         <div
           className="sidebar-backdrop"
@@ -166,10 +211,12 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
             backdropFilter: 'blur(6px)',
             backgroundColor: 'rgba(0, 0, 0, 0.3)',
             zIndex: 1040,
-            transition: 'opacity 0.3s ease-in-out'
+            transition: 'opacity 0.3s ease-in-out',
           }}
         />
       )}
+
+      {/* Sidebar */}
       <div
         ref={sidebarRef}
         className={`sidebar bg-dark text-white p-3 ${showSidebar ? 'show' : ''}`}
@@ -183,7 +230,7 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
           transform: showSidebar ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s ease-in-out',
           boxShadow: '-2px 0 5px rgba(0,0,0,0.5)',
-          overflowY: 'auto'
+          overflowY: 'auto',
         }}
       >
         <button
@@ -192,6 +239,7 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
         >
           Close ✖
         </button>
+
         <button
           className="btn btn-sm btn-danger mb-3 w-100"
           onClick={() => {
@@ -204,17 +252,27 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
         >
           Reset Filters
         </button>
+
+        {/* Search input */}
         <div className="mb-3">
-          <form className="d-flex" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="d-flex"
+            onSubmit={e => e.preventDefault()}
+            role="search"
+            aria-label="Search Pokémon"
+          >
             <input
               type="text"
               className="form-control"
               placeholder="Search..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
+              aria-label="Search Pokémon by name or number"
             />
           </form>
         </div>
+
+        {/* Types filter */}
         <div>
           <h5 className="mb-3">Types</h5>
           <div
@@ -223,13 +281,15 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gridTemplateRows: 'repeat(6, auto)',
-              gap: '10px'
+              gap: '10px',
             }}
           >
             {Object.entries(typeColors).map(([type, color]) => (
               <div
                 key={type}
-                className={`form-check d-flex justify-content-center align-items-center type-filter ${selectedTypes.includes(type) ? 'selected' : ''}`}
+                className={`form-check d-flex justify-content-center align-items-center type-filter ${
+                  selectedTypes.includes(type) ? 'selected' : ''
+                }`}
                 style={{
                   backgroundColor: color,
                   padding: '12px',
@@ -240,8 +300,22 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
                   outline: selectedTypes.includes(type)
                     ? '2px solid white'
                     : 'none',
-                  transform: selectedTypes.includes(type) ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'all 0.2s ease'
+                  transform: selectedTypes.includes(type)
+                    ? 'scale(1.05)'
+                    : 'scale(1)',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+                onClick={() => toggleType(type)}
+                role="checkbox"
+                aria-checked={selectedTypes.includes(type)}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    toggleType(type);
+                  }
                 }}
               >
                 <input
@@ -250,22 +324,13 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
                   value={type}
                   id={`type-${type}`}
                   checked={selectedTypes.includes(type)}
-                  onChange={(e) => {
-                    const updatedTypes = e.target.checked
-                      ? [...selectedTypes, type]
-                      : selectedTypes.filter(t => t !== type);
-                    setSelectedTypes(updatedTypes);
-                    onTypeFilterChange(updatedTypes);
-                  }}
-                  style={{
-                    display: 'none'
-                  }}
+                  onChange={() => {}} // No-op because we handle onClick on the div
+                  style={{ display: 'none' }}
+                  tabIndex={-1}
                 />
                 <label
                   htmlFor={`type-${type}`}
-                  style={{
-                    cursor: 'pointer'
-                  }}
+                  style={{ cursor: 'pointer' }}
                 >
                   <img
                     src={typeIcons[type]}
@@ -273,14 +338,18 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
                     style={{
                       width: '30px',
                       height: '30px',
-                      filter: 'brightness(0) invert(1)'
+                      filter: 'brightness(0) invert(1)',
+                      pointerEvents: 'none',
                     }}
+                    draggable={false}
                   />
                 </label>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Regions filter */}
         <div className="mt-4">
           <h5 className="mb-3">Regions</h5>
           <div
@@ -289,14 +358,24 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
               display: 'grid',
               gridTemplateColumns: 'repeat(3, auto)',
               justifyContent: 'center',
-              gap: '10px'
+              gap: '10px',
             }}
           >
-            {['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'paldea'].map(region => (
+            {[
+              'kanto',
+              'johto',
+              'hoenn',
+              'sinnoh',
+              'unova',
+              'kalos',
+              'alola',
+              'galar',
+              'paldea',
+            ].map((region) => (
               <div
                 key={region}
                 className={`form-check text-center text-capitalize rounded-pill fw-bold shadow-sm ${
-                  selectedRegions?.includes(region)
+                  selectedRegions.includes(region)
                     ? 'bg-primary text-white border border-light'
                     : 'bg-light text-dark border border-secondary'
                 }`}
@@ -305,22 +384,27 @@ const Header = ({ searchQuery, setSearchQuery, onTypeFilterChange, onRegionFilte
                   fontSize: '0.9rem',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease-in-out',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                }}
+                onClick={() => toggleRegion(region)}
+                role="checkbox"
+                aria-checked={selectedRegions.includes(region)}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    toggleRegion(region);
+                  }
                 }}
               >
                 <input
                   type="checkbox"
                   id={`region-${region}`}
                   value={region}
-                  checked={selectedRegions?.includes(region)}
-                  onChange={(e) => {
-                    const updated = e.target.checked
-                      ? [...selectedRegions, region]
-                      : selectedRegions.filter(r => r !== region);
-                    setSelectedRegions(updated);
-                    onRegionFilterChange(updated);
-                  }}
+                  checked={selectedRegions.includes(region)}
+                  onChange={() => {}}
                   style={{ display: 'none' }}
+                  tabIndex={-1}
                 />
                 <label htmlFor={`region-${region}`} className="w-100">
                   {region}

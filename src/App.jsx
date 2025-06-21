@@ -34,8 +34,8 @@ function App() {
                 selectedPokemon={selectedPokemon}
                 setSelectedPokemon={setSelectedPokemon}
                 onTypeFilterChange={setFilteredTypes}
-                selectedRegions={selectedRegions}        // Pasar regiones
-                setSelectedRegions={setSelectedRegions}  // Pasar setter
+                selectedRegions={selectedRegions}
+                setSelectedRegions={setSelectedRegions}
               />
             </div>
             <Home
@@ -43,7 +43,7 @@ function App() {
               selectedPokemon={selectedPokemon}
               setSelectedPokemon={setSelectedPokemon}
               selectedTypes={filteredTypes}
-              selectedRegions={selectedRegions}        // Pasar regiones para filtrar
+              selectedRegions={selectedRegions}
             />
             {!selectedPokemon && <UpArrow />}
           </div>
