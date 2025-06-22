@@ -149,7 +149,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     },
     plugins: {
       legend: {
-        position: 'top',
+        display: false,
       },
     },
     maintainAspectRatio: false,
@@ -218,7 +218,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
 
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 100000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      <div className="modal-content position-relative" style={{ zIndex: 100001, position: 'relative', transition: 'top 0.3s ease', top: 0, maxWidth: '960px', width: '90%' }} onClick={e => e.stopPropagation()}>
+      <div className="modal-content position-relative" style={{ zIndex: 100001, position: 'relative', transition: 'top 0.3s ease', top: 0, maxWidth: '700px', width: '85%', minHeight: '70vh' }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="position-absolute top-0 end-0 m-3 btn btn-link text-dark fs-4" aria-label="Close">
           <FaTimes />
         </button>
@@ -259,24 +259,22 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
         </div>
 
         <React.Fragment>
-          {/* Título y botón fuera del grid */}
+          {/* Título centrado solamente */}
           <div className="text-center mt-4 d-none d-md-block">
             <h2 className="text-capitalize">{pokemon.name} N°{pokemon.id}</h2>
-            <button className="btn btn-warning mt-2" onClick={() => setShowShiny(!showShiny)}>
-              {showShiny ? 'Ver Normal' : 'Ver Shiny'}
-            </button>
           </div>
 
           {/* Grid 2x2 */}
           <div className="d-none d-md-grid px-md-0" style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: '1.1fr 0.9fr',
             gridTemplateRows: 'auto auto',
-            gap: '2rem',
-            marginTop: '2rem'
+            gap: '1.5rem',
+            marginTop: '1.5rem'
           }}>
-            {/* 1. Imagen */}
-            <div style={{ gridColumn: '1 / 2', gridRow: '1 / 2', textAlign: 'center' }}>
+            {/* 1. Imagen y botón Ver Shiny */}
+            <div style={{ gridColumn: '1 / 2', gridRow: '1 / 2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+              <h5 className="text-center mb-2">Image</h5>
               <img
                 src={
                   showShiny
@@ -286,28 +284,65 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
                 alt={pokemon.name}
                 style={{ maxWidth: '200px' }}
               />
+              <div className="mt-2">
+                <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
+                  {showShiny ? 'See Normal' : 'See Shiny'}
+                </button>
+              </div>
             </div>
 
             {/* 2. Características */}
-            <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2' }}>
-              <p><strong>Height:</strong> {(pokemon.height / 10).toFixed(1)} m</p>
-              <p><strong>Weight:</strong> {(pokemon.weight / 10).toFixed(1)} kg</p>
-              <p><strong>Types:</strong> {pokemon.types.map(t => (
-                <span key={t.type.name} style={{ backgroundColor: typeColors[t.type.name], color: 'white', padding: '0.2em 0.5em', borderRadius: '0.5em', marginRight: '0.5em' }}>
-                  {t.type.name}
-                </span>
-              ))}</p>
-              <p><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
+            <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+              <h5 className="text-center mb-2">Characteristics</h5>
+              <p style={{ textAlign: 'center' }}><strong>Height:</strong> {(pokemon.height / 10).toFixed(1)} m</p>
+              <p style={{ textAlign: 'center' }}><strong>Weight:</strong> {(pokemon.weight / 10).toFixed(1)} kg</p>
+              <p style={{ textAlign: 'center' }}>
+                <strong>Types:</strong> {pokemon.types.map(t => (
+                  <span key={t.type.name} style={{ backgroundColor: typeColors[t.type.name], color: 'white', padding: '0.2em 0.5em', borderRadius: '0.5em', marginRight: '0.5em' }}>
+                    {t.type.name}
+                  </span>
+                ))}
+              </p>
+              <p style={{ textAlign: 'center' }}><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
             </div>
 
             {/* 3. Descripción */}
-            <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3', whiteSpace: 'pre-line' }}>
-              <p><strong>Description:</strong> {description}</p>
+            <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3', whiteSpace: 'pre-line', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginBottom: '1.5rem' }}>
+              <h5 className="text-center mb-2">Description</h5>
+              {description && (
+                <p style={{ textAlign: 'center' }}>
+                  <strong>Description:</strong> {description}
+                </p>
+              )}
+              {/* Evoluciones SOLO EN PC, DENTRO DE DESCRIPCIÓN */}
+              {evolutions.length > 0 && (
+                <>
+                  <h5 className="text-center mb-2 d-none d-md-block">Evolution Line</h5>
+                  <div className="d-none d-md-flex justify-content-center align-items-center mt-3 flex-wrap evolution-chain" style={{ gap: '0.5rem' }}>
+                    {evolutions.map((evo, index) => (
+                      <React.Fragment key={evo.id}>
+                        <div className="text-center" style={{ cursor: 'default' }}>
+                          <img
+                            src={evo.image}
+                            alt={evo.name}
+                            title={evo.name}
+                            style={{ width: 60, height: 60, objectFit: 'contain' }}
+                          />
+                          <div className="text-capitalize" style={{ fontSize: '0.8rem' }}>{evo.name}</div>
+                        </div>
+                        {index < evolutions.length - 1 && (
+                          <div style={{ fontSize: '1.5rem' }}>➤</div>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* 4. Stats */}
-            <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3' }}>
-              <h5 className="text-center">Stats</h5>
+            <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginTop: '1.5rem' }}>
+              <h5 className="text-center mb-1" style={{ marginTop: '-0.25rem' }}>Stats</h5>
               <div style={{ height: 300, maxWidth: 300, margin: '0 auto' }}>
                 <Radar data={data} options={options} />
               </div>
@@ -321,7 +356,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
             </div>
 
             {/* Evoluciones */}
-            {evolutions.length > 0 && (
+            {/* {evolutions.length > 0 && (
               <div className="d-flex justify-content-center align-items-center mt-3 flex-wrap evolution-chain" style={{ gap: '0.5rem', gridColumn: '1 / -1' }}>
                 {evolutions.map((evo, index) => (
                   <React.Fragment key={evo.id}>
@@ -340,7 +375,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
                   </React.Fragment>
                 ))}
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Layout mobile original */}
@@ -348,7 +383,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
             <h2 className="text-capitalize text-center mt-3">{pokemon.name}</h2>
             <div className="text-center mb-3">
               <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
-                {showShiny ? 'Ver Normal' : 'Ver Shiny'}
+                {showShiny ? 'See Normal' : 'See Shiny'}
               </button>
             </div>
             <img
