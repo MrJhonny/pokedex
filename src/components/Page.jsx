@@ -99,6 +99,9 @@ const Page = ({ onClose }) => {
           <p style={{ marginTop: '2rem', fontStyle: 'italic', fontSize: '15px' }}>
             Note: Some features may not be fully available on mobile devices. This Pokédex was initially designed for PC screens, but mobile compatibility improvements are on the way.
           </p>
+          <p style={{ marginTop: '1rem', fontStyle: 'italic', fontSize: '15px' }}>
+            All data displayed on this Pokédex is retrieved from external public services. If the page appears to not load content correctly, try scrolling or swiping (on mobile/tablets) or using your mouse wheel (on PC) to force a refresh of dynamic sections.
+          </p>
         </div>
         <div style={{ marginTop: '2rem', textAlign: 'center' }}>
           <img 
