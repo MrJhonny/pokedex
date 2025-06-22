@@ -51,6 +51,9 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     } else if (!isFavourite && storedFavourites.includes(pokemon.id)) {
       localStorage.setItem('favourites', JSON.stringify(storedFavourites.filter(id => id !== pokemon.id)));
     }
+    // Disparar evento global para notificar actualización de favoritos
+    const event = new CustomEvent('favourites-updated');
+    window.dispatchEvent(event);
   }, [isFavourite, pokemon.id]);
 
   useEffect(() => {

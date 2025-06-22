@@ -6,7 +6,7 @@ import LoaderMini from '../components/LoaderMini';
 
 import './Home.css'; // opcional para estilos personalizados
 
-const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelectedRegions }) => {
+const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelectedRegions, showFavouritesOnly }) => {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,11 +19,14 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [inputSequence, setInputSequence] = useState('');
 
-  const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
 
-  const handleToggleFavourites = (value) => {
-    setShowFavouritesOnly(value);
-  };
+
+  const [favourites, setFavourites] = useState([]);
+
+  useEffect(() => {
+    const storedFavourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+    setFavourites(storedFavourites);
+  }, [showFavouritesOnly]);
 
   const regionRanges = {
     kanto: [1, 151],
@@ -67,40 +70,53 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   useEffect(() => {
     if (!pokemonList.length) return;
 
-    let filtered = pokemonList;
+    const applyFilters = () => {
+      let filtered = pokemonList;
 
-    // Filtrar por nombre o id (searchQuery)
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.id.toString().includes(searchQuery)
-      );
-    }
+      if (searchQuery.trim()) {
+        filtered = filtered.filter(p =>
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.id.toString().includes(searchQuery)
+        );
+      }
 
-    // Filtrar por tipos (si hay)
-    if (selectedTypes && selectedTypes.length > 0) {
-      filtered = filtered.filter(p =>
-        p.types.some(t => selectedTypes.includes(t.type.name))
-      );
-    }
+      if (selectedTypes && selectedTypes.length > 0) {
+        filtered = filtered.filter(p =>
+          p.types.some(t => selectedTypes.includes(t.type.name))
+        );
+      }
 
-    // Filtrar por regiones (si hay)
-    if (selectedRegions && selectedRegions.length > 0) {
-      const regionIds = selectedRegions.flatMap(region => {
-        const range = regionRanges[region];
-        if (!range) return [];
-        const [minId, maxId] = range;
-        return Array.from({ length: maxId - minId + 1 }, (_, i) => i + minId);
-      });
-      filtered = filtered.filter(p => regionIds.includes(p.id));
-    }
+      if (selectedRegions && selectedRegions.length > 0) {
+        const regionIds = selectedRegions.flatMap(region => {
+          const range = regionRanges[region];
+          if (!range) return [];
+          const [minId, maxId] = range;
+          return Array.from({ length: maxId - minId + 1 }, (_, i) => i + minId);
+        });
+        filtered = filtered.filter(p => regionIds.includes(p.id));
+      }
 
-    if (showFavouritesOnly) {
-      const storedFavourites = JSON.parse(localStorage.getItem('favourites') || '[]');
-      filtered = filtered.filter(p => storedFavourites.includes(p.id));
-    }
-    setFilteredList(filtered);
-  }, [searchQuery, selectedTypes, selectedRegions, pokemonList, showFavouritesOnly]);
+      if (showFavouritesOnly) {
+        const favIds = favourites;
+        filtered = filtered.filter(p => favIds.some(f => f === p.id));
+      }
+
+      setFilteredList(filtered);
+    };
+
+    applyFilters();
+
+    const onStorageChange = (e) => {
+      if (e.key === 'favourites') {
+        applyFilters();
+      }
+    };
+
+    window.addEventListener('storage', onStorageChange);
+    return () => {
+      window.removeEventListener('storage', onStorageChange);
+    };
+  }, [searchQuery, selectedTypes, selectedRegions, pokemonList, showFavouritesOnly, favourites]);
 
   useEffect(() => {
     const handleScroll = () => {

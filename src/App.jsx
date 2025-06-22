@@ -13,6 +13,10 @@ function App() {
   const [filteredTypes, setFilteredTypes] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
+  const [favourites, setFavourites] = useState(() => {
+    const saved = localStorage.getItem('favourites');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,6 +25,10 @@ function App() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('favourites', JSON.stringify(favourites));
+  }, [favourites]);
 
   return (
     <>
@@ -38,6 +46,8 @@ function App() {
                 onTypeFilterChange={setFilteredTypes}
                 setSelectedRegions={setSelectedRegions}
                 onToggleFavouritesFilter={setShowFavouritesOnly}
+                showFavouritesOnly={showFavouritesOnly}
+                favourites={favourites}
               />
             </div>
             <Home
@@ -48,6 +58,8 @@ function App() {
               selectedRegions={selectedRegions}
               setSelectedRegions={setSelectedRegions}
               showFavouritesOnly={showFavouritesOnly}
+              favourites={favourites}
+              setFavourites={setFavourites}
             />
             {!selectedPokemon && <UpArrow />}
           </div>

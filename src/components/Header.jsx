@@ -69,12 +69,14 @@ const Header = ({
   onTypeFilterChange,
   setSelectedRegions,
   bigCardOpen,
-  onToggleFavouritesFilter
+  onToggleFavouritesFilter,
+  favourites,
+  showFavouritesOnly
 }) => {
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedRegionsInternal, setSelectedRegionsInternal] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
+  // const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
 
   const sidebarRef = useRef(null);
 
@@ -158,6 +160,15 @@ const Header = ({
     setSelectedRegionsInternal(updated);
     setSelectedRegions(updated);
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('favourites');
+      if (stored && stored.length > 0 && Array.isArray(JSON.parse(stored))) {
+        // no-op, solo validación
+      }
+    }
+  }, []);
 
   return (
     <>
@@ -432,10 +443,13 @@ const Header = ({
         <button
           className={`btn btn-sm w-100 mb-2 ${showFavouritesOnly ? 'btn-warning' : 'btn-outline-warning'}`}
           onClick={() => {
-            const newValue = !showFavouritesOnly;
-            setShowFavouritesOnly(newValue);
             if (typeof onToggleFavouritesFilter === 'function') {
-              onToggleFavouritesFilter(newValue);
+              const stored = JSON.parse(localStorage.getItem('favourites') || '[]');
+              if (stored.length === 0) {
+                alert('No favourites yet!');
+                return;
+              }
+              onToggleFavouritesFilter(!showFavouritesOnly);
             }
           }}
         >
