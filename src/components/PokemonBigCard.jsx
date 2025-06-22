@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { typeColors } from './PokemonCard';
 import './PokemonBigCard.css';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -29,6 +29,29 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
   const [showShiny, setShowShiny] = useState(false);
   const [description, setDescription] = useState('');
   const [evolutions, setEvolutions] = useState([]);
+  const [isFavourite, setIsFavourite] = useState(() => {
+    const stored = JSON.parse(localStorage.getItem('favourites') || '[]');
+    return pokemon?.id ? stored.includes(pokemon.id) : false;
+  });
+
+  // Cargar favoritos desde localStorage al montar o cambiar pokemon
+  useEffect(() => {
+    if (!pokemon?.id) return;
+
+    const storedFavourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+    setIsFavourite(storedFavourites.includes(pokemon.id));
+    console.log('Check if favourite:', pokemon.id);
+  }, [pokemon?.id]);
+
+  // Actualizar localStorage cuando cambia isFavourite
+  useEffect(() => {
+    const storedFavourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+    if (isFavourite && !storedFavourites.includes(pokemon.id)) {
+      localStorage.setItem('favourites', JSON.stringify([...storedFavourites, pokemon.id]));
+    } else if (!isFavourite && storedFavourites.includes(pokemon.id)) {
+      localStorage.setItem('favourites', JSON.stringify(storedFavourites.filter(id => id !== pokemon.id)));
+    }
+  }, [isFavourite, pokemon.id]);
 
   useEffect(() => {
     const event = new CustomEvent('bigcard-toggle', { detail: true });
@@ -261,7 +284,44 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
         <React.Fragment>
           {/* Título centrado solamente */}
           <div className="text-center mt-4 d-none d-md-block">
-            <h2 className="text-capitalize">{pokemon.name} N°{pokemon.id}</h2>
+            <h2 className="text-capitalize">{pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} N°{pokemon.id}</h2>
+            <div
+              className="favourite-toggle mt-3"
+              onClick={() => setIsFavourite(!isFavourite)}
+              role="button"
+              aria-label="Toggle Favourite"
+              tabIndex="0"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                cursor: 'pointer',
+                gap: '0.25rem',
+              }}
+            >
+            <div
+              className="favourite-icon-wrapper"
+              style={{
+                fontSize: '2.5rem',
+                color: isFavourite ? '#f52755' : '#aaa',
+                transition: 'all 0.3s ease',
+                filter: isFavourite ? 'drop-shadow(0 0 6px rgba(245, 39, 85, 0.5))' : 'none',
+                transform: isFavourite ? 'scale(1.2)' : 'scale(1)',
+              }}
+            >
+                {isFavourite ? <FaHeart /> : <FaRegHeart />}
+              </div>
+              <div
+                style={{
+                  fontSize: '0.9rem',
+                  color: isFavourite ? '#f52755' : '#666',
+                  opacity: 1,
+                }}
+              >
+                {isFavourite ? `${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} added to favourites!` : `Click to add ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} to favourites`}
+              </div>
+            </div>
           </div>
 
           {/* Grid 2x2 */}
@@ -380,7 +440,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
 
           {/* Layout mobile original */}
           <div className="d-md-none px-3">
-            <h2 className="text-capitalize text-center mt-3">{pokemon.name}</h2>
+            <h2 className="text-capitalize text-center mt-3">{pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</h2>
             <div className="text-center mb-3">
               <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
                 {showShiny ? 'See Normal' : 'See Shiny'}

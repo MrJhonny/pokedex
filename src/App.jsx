@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Loader from './components/Loader';
 import UpArrow from './components/UpArrow';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
   const [loading, setLoading] = useState(true);
