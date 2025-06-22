@@ -12,6 +12,7 @@ function App() {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [filteredTypes, setFilteredTypes] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
+  const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,6 +37,7 @@ function App() {
                 setSelectedPokemon={setSelectedPokemon}
                 onTypeFilterChange={setFilteredTypes}
                 setSelectedRegions={setSelectedRegions}
+                onToggleFavouritesFilter={setShowFavouritesOnly}
               />
             </div>
             <Home
@@ -45,6 +47,7 @@ function App() {
               selectedTypes={filteredTypes}
               selectedRegions={selectedRegions}
               setSelectedRegions={setSelectedRegions}
+              showFavouritesOnly={showFavouritesOnly}
             />
             {!selectedPokemon && <UpArrow />}
           </div>
