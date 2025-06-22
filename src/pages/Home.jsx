@@ -19,6 +19,12 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [inputSequence, setInputSequence] = useState('');
 
+  const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
+
+  const handleToggleFavourites = (value) => {
+    setShowFavouritesOnly(value);
+  };
+
   const regionRanges = {
     kanto: [1, 151],
     johto: [152, 251],
@@ -89,8 +95,12 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
       filtered = filtered.filter(p => regionIds.includes(p.id));
     }
 
+    if (showFavouritesOnly) {
+      const storedFavourites = JSON.parse(localStorage.getItem('favourites') || '[]');
+      filtered = filtered.filter(p => storedFavourites.includes(p.id));
+    }
     setFilteredList(filtered);
-  }, [searchQuery, selectedTypes, selectedRegions, pokemonList]);
+  }, [searchQuery, selectedTypes, selectedRegions, pokemonList, showFavouritesOnly]);
 
   useEffect(() => {
     const handleScroll = () => {

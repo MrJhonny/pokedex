@@ -68,11 +68,13 @@ const Header = ({
   setSearchQuery,
   onTypeFilterChange,
   setSelectedRegions,
-  bigCardOpen
+  bigCardOpen,
+  onToggleFavouritesFilter
 }) => {
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedRegionsInternal, setSelectedRegionsInternal] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
 
   const sidebarRef = useRef(null);
 
@@ -248,6 +250,10 @@ const Header = ({
             setSelectedRegions([]);
             setSearchQuery('');
             onTypeFilterChange([]);
+            setShowFavouritesOnly(false);
+            if (typeof onToggleFavouritesFilter === 'function') {
+              onToggleFavouritesFilter(false);
+            }
           }}
         >
           Reset Filters
@@ -422,6 +428,19 @@ const Header = ({
             ))}
           </div>
         </div>
+
+        <button
+          className={`btn btn-sm w-100 mb-2 ${showFavouritesOnly ? 'btn-warning' : 'btn-outline-warning'}`}
+          onClick={() => {
+            const newValue = !showFavouritesOnly;
+            setShowFavouritesOnly(newValue);
+            if (typeof onToggleFavouritesFilter === 'function') {
+              onToggleFavouritesFilter(newValue);
+            }
+          }}
+        >
+          {showFavouritesOnly ? 'Showing Favourites' : 'View Favourites'}
+        </button>
       </div>
     </>
   );
