@@ -173,6 +173,7 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
     };
   }, [showEasterEgg]);
 
+  const isMobile = window.innerWidth <= 768;
   return (
     <div className={`page-wrapper ${selectedPokemon ? 'bigcard-open' : ''}`}>
       <div className={`home-wrapper ${selectedPokemon ? 'no-scroll' : ''}`} style={{ paddingTop: '60px' }}>
@@ -202,7 +203,10 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
         )}
         
         {selectedPokemon && (
-          <div style={{ zIndex: 1100, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
+          <div
+            className="pokemon-bigcard-wrapper"
+            style={{ zIndex: 1100, position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}
+          >
             <PokemonBigCard
               pokemon={selectedPokemon}
               onClose={() => setSelectedPokemon(null)}
@@ -218,6 +222,7 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
                   setSelectedPokemon(filteredList[currentIndex + 1]);
                 }
               }}
+              layoutMode={isMobile ? 'default' : 'desktopGrid'}
             />
           </div>
         )}

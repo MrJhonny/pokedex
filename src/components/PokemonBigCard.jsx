@@ -155,9 +155,70 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     maintainAspectRatio: false,
   };
 
+  // Efecto para detectar deslizamiento hacia abajo en modal-content
+  useEffect(() => {
+    const modal = document.querySelector('.modal-content');
+    if (!modal) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let threshold = 500;
+    let direction = null;
+    let startX = 0;
+    let currentX = 0;
+
+    const onTouchStart = (e) => {
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      modal.style.transition = 'none';
+      direction = null;
+    };
+
+    const onTouchMove = (e) => {
+      currentY = e.touches[0].clientY;
+      currentX = e.touches[0].clientX;
+      const deltaY = currentY - startY;
+      const deltaX = currentX - startX;
+
+      if (Math.abs(deltaY) > 10) {
+        direction = deltaY > 0 ? 'down' : 'up';
+        modal.style.top = `${deltaY}px`;
+      }
+    };
+
+    const onTouchEnd = () => {
+      const deltaY = currentY - startY;
+      const deltaX = currentX - startX;
+      modal.style.transition = 'top 0.3s ease';
+
+      if (direction && Math.abs(deltaY) > threshold) {
+        onClose(); // Solo cerrar si es gesto claro y con dirección
+      } else if (Math.abs(deltaX) > threshold) {
+        if (deltaX > 0) {
+          onPrev && onPrev();
+        } else {
+          onNext && onNext();
+        }
+        modal.style.top = `0`;
+      } else {
+        modal.style.top = `0`;
+      }
+    };
+
+    modal.addEventListener('touchstart', onTouchStart);
+    modal.addEventListener('touchmove', onTouchMove);
+    modal.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      modal.removeEventListener('touchstart', onTouchStart);
+      modal.removeEventListener('touchmove', onTouchMove);
+      modal.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
+
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 100000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-      <div className="modal-content position-relative" style={{ zIndex: 100001, position: 'relative' }} onClick={e => e.stopPropagation()}>
+      <div className="modal-content position-relative" style={{ zIndex: 100001, position: 'relative', transition: 'top 0.3s ease', top: 0, maxWidth: '960px', width: '90%' }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="position-absolute top-0 end-0 m-3 btn btn-link text-dark fs-4" aria-label="Close">
           <FaTimes />
         </button>
@@ -196,62 +257,152 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
             &rarr;
           </button>
         </div>
-        <h2 className="text-capitalize text-center mt-3">{pokemon.name}</h2>
-        <div className="text-center mb-3">
-          <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
-            {showShiny ? 'Ver Normal' : 'Ver Shiny'}
-          </button>
-        </div>
-        <img
-          src={
-            showShiny
-              ? pokemon.sprites?.other?.['official-artwork']?.front_shiny
-              : pokemon.sprites?.other?.['official-artwork']?.front_default
-          }
-          alt={pokemon.name}
-        />
-        <p><strong>Height:</strong> {(pokemon.height / 10).toFixed(1)} m</p>
-        <p><strong>Weight:</strong> {(pokemon.weight / 10).toFixed(1)} kg</p>
-        <p><strong>Types:</strong> {pokemon.types.map(t => (
-          <span key={t.type.name} style={{ backgroundColor: typeColors[t.type.name], color: 'white', padding: '0.2em 0.5em', borderRadius: '0.5em', marginRight: '0.5em' }}>
-            {t.type.name}
-          </span>
-        ))}</p>
-        <p><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
-        {/* New section for description, radar chart and evolutions */}
-        <div className="mt-4">
-          {description && (
-            <p style={{ whiteSpace: 'pre-line' }}><strong>Description:</strong> {description}</p>
-          )}
-          <div style={{ height: 300, maxWidth: 400, margin: '0 auto' }}>
-            <Radar data={data} options={options} />
+
+        <React.Fragment>
+          {/* Título y botón fuera del grid */}
+          <div className="text-center mt-4 d-none d-md-block">
+            <h2 className="text-capitalize">{pokemon.name} N°{pokemon.id}</h2>
+            <button className="btn btn-warning mt-2" onClick={() => setShowShiny(!showShiny)}>
+              {showShiny ? 'Ver Normal' : 'Ver Shiny'}
+            </button>
           </div>
-          {evolutions.length > 0 && (
-            <div className="d-flex justify-content-center align-items-center mt-3 flex-wrap evolution-chain" style={{ gap: '0.5rem' }}>
-              {evolutions.map((evo, index) => (
-                <React.Fragment key={evo.id}>
-                  <div className="text-center" style={{ cursor: 'default' }}>
-                    <img
-                      src={evo.image}
-                      alt={evo.name}
-                      title={evo.name}
-                      style={{ width: 60, height: 60, objectFit: 'contain' }}
-                    />
-                    <div className="text-capitalize" style={{ fontSize: '0.8rem' }}>{evo.name}</div>
-                  </div>
-                  {index < evolutions.length - 1 && (
-                    <div style={{ fontSize: '1.5rem' }}>➤</div>
-                  )}
-                </React.Fragment>
-              ))}
+
+          {/* Grid 2x2 */}
+          <div className="d-none d-md-grid px-md-0" style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gridTemplateRows: 'auto auto',
+            gap: '2rem',
+            marginTop: '2rem'
+          }}>
+            {/* 1. Imagen */}
+            <div style={{ gridColumn: '1 / 2', gridRow: '1 / 2', textAlign: 'center' }}>
+              <img
+                src={
+                  showShiny
+                    ? pokemon.sprites?.other?.['official-artwork']?.front_shiny
+                    : pokemon.sprites?.other?.['official-artwork']?.front_default
+                }
+                alt={pokemon.name}
+                style={{ maxWidth: '200px' }}
+              />
             </div>
-          )}
-        </div>
-        <div className="d-flex justify-content-center mt-3">
-          <audio controls src={cryUrl}>
-            Your browser does not support audio.
-          </audio>
-        </div>
+
+            {/* 2. Características */}
+            <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2' }}>
+              <p><strong>Height:</strong> {(pokemon.height / 10).toFixed(1)} m</p>
+              <p><strong>Weight:</strong> {(pokemon.weight / 10).toFixed(1)} kg</p>
+              <p><strong>Types:</strong> {pokemon.types.map(t => (
+                <span key={t.type.name} style={{ backgroundColor: typeColors[t.type.name], color: 'white', padding: '0.2em 0.5em', borderRadius: '0.5em', marginRight: '0.5em' }}>
+                  {t.type.name}
+                </span>
+              ))}</p>
+              <p><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
+            </div>
+
+            {/* 3. Descripción */}
+            <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3', whiteSpace: 'pre-line' }}>
+              <p><strong>Description:</strong> {description}</p>
+            </div>
+
+            {/* 4. Stats */}
+            <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3' }}>
+              <h5 className="text-center">Stats</h5>
+              <div style={{ height: 300, maxWidth: 300, margin: '0 auto' }}>
+                <Radar data={data} options={options} />
+              </div>
+            </div>
+
+            {/* Audio */}
+            <div className="d-flex justify-content-center mt-3" style={{ gridColumn: '1 / -1' }}>
+              <audio controls src={cryUrl}>
+                Your browser does not support audio.
+              </audio>
+            </div>
+
+            {/* Evoluciones */}
+            {evolutions.length > 0 && (
+              <div className="d-flex justify-content-center align-items-center mt-3 flex-wrap evolution-chain" style={{ gap: '0.5rem', gridColumn: '1 / -1' }}>
+                {evolutions.map((evo, index) => (
+                  <React.Fragment key={evo.id}>
+                    <div className="text-center" style={{ cursor: 'default' }}>
+                      <img
+                        src={evo.image}
+                        alt={evo.name}
+                        title={evo.name}
+                        style={{ width: 60, height: 60, objectFit: 'contain' }}
+                      />
+                      <div className="text-capitalize" style={{ fontSize: '0.8rem' }}>{evo.name}</div>
+                    </div>
+                    {index < evolutions.length - 1 && (
+                      <div style={{ fontSize: '1.5rem' }}>➤</div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Layout mobile original */}
+          <div className="d-md-none px-3">
+            <h2 className="text-capitalize text-center mt-3">{pokemon.name}</h2>
+            <div className="text-center mb-3">
+              <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
+                {showShiny ? 'Ver Normal' : 'Ver Shiny'}
+              </button>
+            </div>
+            <img
+              src={
+                showShiny
+                  ? pokemon.sprites?.other?.['official-artwork']?.front_shiny
+                  : pokemon.sprites?.other?.['official-artwork']?.front_default
+              }
+              alt={pokemon.name}
+            />
+            <p><strong>Height:</strong> {(pokemon.height / 10).toFixed(1)} m</p>
+            <p><strong>Weight:</strong> {(pokemon.weight / 10).toFixed(1)} kg</p>
+            <p><strong>Types:</strong> {pokemon.types.map(t => (
+              <span key={t.type.name} style={{ backgroundColor: typeColors[t.type.name], color: 'white', padding: '0.2em 0.5em', borderRadius: '0.5em', marginRight: '0.5em' }}>
+                {t.type.name}
+              </span>
+            ))}</p>
+            <p><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
+
+            {description && (
+              <p style={{ whiteSpace: 'pre-line' }}><strong>Description:</strong> {description}</p>
+            )}
+                        <div style={{ height: 300, maxWidth: 300, margin: '2rem auto' }}>
+              <Radar data={data} options={options} />
+            </div>
+            {evolutions.length > 0 && (
+              <div className="d-flex justify-content-center align-items-center mt-3 flex-wrap evolution-chain" style={{ gap: '0.5rem' }}>
+                {evolutions.map((evo, index) => (
+                  <React.Fragment key={evo.id}>
+                    <div className="text-center" style={{ cursor: 'default' }}>
+                      <img
+                        src={evo.image}
+                        alt={evo.name}
+                        title={evo.name}
+                        style={{ width: 60, height: 60, objectFit: 'contain' }}
+                      />
+                      <div className="text-capitalize" style={{ fontSize: '0.8rem' }}>{evo.name}</div>
+                    </div>
+                    
+                    {index < evolutions.length - 1 && (
+                      <div style={{ fontSize: '1.5rem' }}>➤</div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+            <div className="d-flex justify-content-center mt-3">
+              <audio controls src={cryUrl}>
+                Your browser does not support audio.
+              </audio>
+            </div>
+          </div>
+        </React.Fragment>
+
       </div>
     </div>
   );

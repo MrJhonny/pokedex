@@ -287,7 +287,7 @@ const Header = ({
             {Object.entries(typeColors).map(([type, color]) => (
               <div
                 key={type}
-                className={`form-check d-flex justify-content-center align-items-center type-filter ${
+                className={`form-check d-flex flex-column justify-content-center align-items-center type-filter ${
                   selectedTypes.includes(type) ? 'selected' : ''
                 }`}
                 style={{
@@ -306,6 +306,7 @@ const Header = ({
                   transition: 'all 0.2s ease',
                   cursor: 'pointer',
                   userSelect: 'none',
+                  textAlign: 'center',
                 }}
                 onClick={() => toggleType(type)}
                 role="checkbox"
@@ -328,10 +329,7 @@ const Header = ({
                   style={{ display: 'none' }}
                   tabIndex={-1}
                 />
-                <label
-                  htmlFor={`type-${type}`}
-                  style={{ cursor: 'pointer' }}
-                >
+                <label htmlFor={`type-${type}`} style={{ cursor: 'pointer' }} className="d-flex flex-column align-items-center">
                   <img
                     src={typeIcons[type]}
                     alt={`${type} icon`}
@@ -340,9 +338,20 @@ const Header = ({
                       height: '30px',
                       filter: 'brightness(0) invert(1)',
                       pointerEvents: 'none',
+                      marginBottom: '4px',
                     }}
                     draggable={false}
                   />
+                  <span
+                    style={{
+                      fontSize: '0.75rem',
+                      color: 'white',
+                      textTransform: 'capitalize',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    {type}
+                  </span>
                 </label>
               </div>
             ))}
