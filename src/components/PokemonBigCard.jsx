@@ -444,6 +444,43 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
           {/* Layout mobile original */}
           <div className="d-md-none px-3">
             <h2 className="text-capitalize text-center mt-3">{pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</h2>
+            <div
+              className="favourite-toggle mt-3"
+              onClick={() => setIsFavourite(!isFavourite)}
+              role="button"
+              aria-label="Toggle Favourite"
+              tabIndex="0"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                cursor: 'pointer',
+                gap: '0.25rem',
+              }}
+            >
+              <div
+                className="favourite-icon-wrapper"
+                style={{
+                  fontSize: '2.5rem',
+                  color: isFavourite ? '#f52755' : '#aaa',
+                  transition: 'all 0.3s ease',
+                  filter: isFavourite ? 'drop-shadow(0 0 6px rgba(245, 39, 85, 0.5))' : 'none',
+                  transform: isFavourite ? 'scale(1.2)' : 'scale(1)',
+                }}
+              >
+                {isFavourite ? <FaHeart /> : <FaRegHeart />}
+              </div>
+              <div
+                style={{
+                  fontSize: '0.9rem',
+                  color: isFavourite ? '#f52755' : '#666',
+                  opacity: 1,
+                }}
+              >
+                {isFavourite ? `${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} added to favourites!` : `Click to add ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} to favourites`}
+              </div>
+            </div>
             <div className="text-center mb-3">
               <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>
                 {showShiny ? 'See Normal' : 'See Shiny'}

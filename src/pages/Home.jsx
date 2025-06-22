@@ -1,4 +1,5 @@
 import PokemonBigCard from '../components/PokemonBigCard';
+import Page from '../components/Page';
 import { useEffect, useState } from 'react';
 import PokemonCard from '../components/PokemonCard';
 import Loader from '../components/Loader';
@@ -6,7 +7,7 @@ import LoaderMini from '../components/LoaderMini';
 
 import './Home.css'; // opcional para estilos personalizados
 
-const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelectedRegions, showFavouritesOnly }) => {
+const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelectedRegions, showFavouritesOnly, showHelpPage }) => {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -254,6 +255,7 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
         )}
 
         </div>
+      {showHelpPage && <Page />}
       </div>
       {showEasterEgg && (
         <div style={{

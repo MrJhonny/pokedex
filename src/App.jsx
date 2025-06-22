@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Loader from './components/Loader';
 import UpArrow from './components/UpArrow';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Page from './components/Page';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ function App() {
     const saved = localStorage.getItem('favourites');
     return saved ? JSON.parse(saved) : [];
   });
+  const [showHelpPage, setShowHelpPage] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -30,12 +32,25 @@ function App() {
     localStorage.setItem('favourites', JSON.stringify(favourites));
   }, [favourites]);
 
+  useEffect(() => {
+    const openHelp = () => setShowHelpPage(true);
+    window.addEventListener('openHelp', openHelp);
+    return () => window.removeEventListener('openHelp', openHelp);
+  }, []);
+
+  const closeHelpPage = () => setShowHelpPage(false);
+
   return (
     <>
       {loading ? (
         <Loader />
       ) : (
         <>
+          {showHelpPage && (
+            <div className="modal-overlay">
+              <Page onClose={closeHelpPage} />
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <div className={`header-wrapper ${selectedPokemon ? 'behind-bigcard' : ''}`} style={selectedPokemon ? { pointerEvents: 'none' } : {}}>
               <Header

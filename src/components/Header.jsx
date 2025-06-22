@@ -1,5 +1,6 @@
 // src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import Page from './Page';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import bugIcon from '../assets/bug.svg';
@@ -76,6 +77,7 @@ const Header = ({
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedRegionsInternal, setSelectedRegionsInternal] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showPageModal, setShowPageModal] = useState(false);
   // const [showFavouritesOnly, setShowFavouritesOnly] = useState(false);
 
   const sidebarRef = useRef(null);
@@ -246,11 +248,49 @@ const Header = ({
           overflowY: 'auto',
         }}
       >
+        <div className="d-flex justify-content-between mb-3">
+          <button
+            className="btn btn-sm btn-outline-light"
+            onClick={() => setShowPageModal(true)}
+          >
+            Help ❓
+          </button>
+          <button
+            className="btn btn-sm btn-outline-light"
+            onClick={() => setShowSidebar(false)}
+          >
+            Close ✖
+          </button>
+        </div>
+
         <button
-          className="btn btn-sm btn-outline-light mb-3"
-          onClick={() => setShowSidebar(false)}
+          id="favourites-button"
+          className={`btn btn-sm btn-warning text-black mb-3 w-100 fw-bold ${
+            showFavouritesOnly ? 'active' : ''
+          }`}
+          style={{ fontSize: '0.9rem' }}
+          onClick={() => {
+            if (typeof onToggleFavouritesFilter === 'function') {
+              const stored = JSON.parse(localStorage.getItem('favourites') || '[]');
+              if (stored.length === 0) {
+                const originalText = showFavouritesOnly ? 'Showing Favourites' : 'View Favourites';
+                const button = document.getElementById('favourites-button');
+                if (button) {
+                  button.disabled = true;
+                  const originalContent = button.innerHTML;
+                  button.innerHTML = 'No favourites yet!';
+                  setTimeout(() => {
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                  }, 2000);
+                }
+                return;
+              }
+              onToggleFavouritesFilter(!showFavouritesOnly);
+            }
+          }}
         >
-          Close ✖
+          {showFavouritesOnly ? 'View All' : 'View Favourites'}
         </button>
 
         <button
@@ -439,23 +479,38 @@ const Header = ({
             ))}
           </div>
         </div>
-
-        <button
-          className={`btn btn-sm w-100 mb-2 ${showFavouritesOnly ? 'btn-warning' : 'btn-outline-warning'}`}
-          onClick={() => {
-            if (typeof onToggleFavouritesFilter === 'function') {
-              const stored = JSON.parse(localStorage.getItem('favourites') || '[]');
-              if (stored.length === 0) {
-                alert('No favourites yet!');
-                return;
-              }
-              onToggleFavouritesFilter(!showFavouritesOnly);
-            }
+        {/* Footer con ícono de GitHub */}
+        <div
+          style={{
+            width: '100%',
+            textAlign: 'center',
+            display: 'none',
           }}
+          className="text-center mt-4 pt-4 border-top d-none d-md-block"
         >
-          {showFavouritesOnly ? 'Showing Favourites' : 'View Favourites'}
-        </button>
+          <a
+            href="https://github.com/MrJhonny/pokedex"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="d-inline-block"
+            style={{ textDecoration: 'none' }}
+          >
+            <img
+              src="https://user-images.githubusercontent.com/74038190/212257468-1e9a91f1-b626-4baa-b15d-5c385dfa7ed2.gif"
+              alt="GitHub"
+              style={{
+                width: '30px',
+                height: '30px',
+                filter: 'invert(1)',
+                transition: 'transform 0.2s ease-in-out',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
+              onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
+            />
+          </a>
+        </div>
       </div>
+      {showPageModal && <Page onClose={() => setShowPageModal(false)} />}
     </>
   );
 };
