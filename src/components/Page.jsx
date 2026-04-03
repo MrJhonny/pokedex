@@ -64,16 +64,16 @@ const Page = ({ onClose }) => {
           fontSize: '16px',
           textAlign: 'center',
         }}>
-          <h2 style={{ fontSize: '24px', marginBottom: '1rem', textAlign: 'center' }}>How does this Pokédex work?</h2>
-          <p>This is a didactic Pokédex made for learning purposes. Here’s a quick guide:</p>
+          <h2 style={{ fontSize: '24px', marginBottom: '1rem', textAlign: 'center' }}>How does this Pokedex work?</h2>
+          <p>This is a didactic Pokedex made for learning purposes. Here's a quick guide:</p>
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem', textAlign: 'left' }}>
-              <li><strong>Search Bar:</strong> Type a Pokémon’s name to find it quickly.</li>
-              <li><strong>Type Filter:</strong> Use this to filter Pokémon by their type (e.g., Fire, Water, Grass).</li>
-              <li><strong>Region Filter:</strong> Use this to view Pokémon based on their regional appearance.</li>
-              <li><strong>Favourite Button:</strong> Click the heart icon ❤️ to add or remove Pokémon from your favourites.</li>
-              <li><strong>View Favourites:</strong> Toggles the view to show only your favourite Pokémon.</li>
+              <li><strong>Search Bar:</strong> Type a Pokemon's name to find it quickly.</li>
+              <li><strong>Type Filter:</strong> Use this to filter Pokemon by their type (e.g., Fire, Water, Grass).</li>
+              <li><strong>Region Filter:</strong> Use this to view Pokemon based on their regional appearance.</li>
+              <li><strong>Favourite Button:</strong> Click the heart icon ❤️ to add or remove Pokemon from your favourites.</li>
+              <li><strong>View Favourites:</strong> Toggles the view to show only your favourite Pokemon.</li>
               <li><strong>Reset Filters:</strong> Clears all active filters and resets the view.</li>
             </ul>
           </div>
@@ -81,26 +81,26 @@ const Page = ({ onClose }) => {
           <h3 style={{ fontSize: '20px', marginTop: '2rem', marginBottom: '0.75rem' }}>Visual Indicators:</h3>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem', textAlign: 'left' }}>
-              <li><strong>Shiny Toggle:</strong> Lets you switch between normal and shiny Pokémon sprites.</li>
-              <li><strong>Stats Chart:</strong> Displays the Pokémon’s stats in a bar graph format.</li>
-              <li><strong>Evolutions:</strong> Shows the evolutionary line of the Pokémon if it has one.</li>
+              <li><strong>Shiny Toggle:</strong> Lets you switch between normal and shiny Pokemon sprites.</li>
+              <li><strong>Stats Chart:</strong> Displays the Pokemon's stats in a bar graph format.</li>
+              <li><strong>Evolutions:</strong> Shows the evolutionary line of the Pokemon if it has one.</li>
             </ul>
           </div>
 
-          <p>Enjoy exploring the world of Pokémon!</p>
+          <p>Enjoy exploring the world of Pokemon!</p>
 
           <h3 style={{ fontSize: '20px', marginTop: '2rem', marginBottom: '0.75rem' }}>Coming Soon:</h3>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem', textAlign: 'left' }}>
-              <li><strong>Create a Pokémon Team:</strong> Build your own Pokémon lineup and save it.</li>
-              <li><strong>IV Calculator:</strong> Calculate the potential IVs of your Pokémon based on stats.</li>
+              <li><strong>Create a Pokemon Team:</strong> Build your own Pokemon lineup and save it.</li>
+              <li><strong>IV Calculator:</strong> Calculate the potential IVs of your Pokemon based on stats.</li>
             </ul>
           </div>
           <p style={{ marginTop: '2rem', fontStyle: 'italic', fontSize: '15px' }}>
-            Note: Some features may not be fully available on mobile devices. This Pokédex was initially designed for PC screens, but mobile compatibility improvements are on the way.
+            Note: Some features may not be fully available on mobile devices. This Pokedex was initially designed for PC screens, but mobile compatibility improvements are on the way.
           </p>
           <p style={{ marginTop: '1rem', fontStyle: 'italic', fontSize: '15px' }}>
-            All data displayed on this Pokédex is retrieved from external public services. If the page appears to not load content correctly, try scrolling or swiping (on mobile/tablets) or using your mouse wheel (on PC) to force a refresh of dynamic sections.
+            All data displayed on this Pokedex is retrieved from external public services. If the page appears to not load content correctly, try scrolling or swiping (on mobile/tablets) or using your mouse wheel (on PC) to force a refresh of dynamic sections.
           </p>
         </div>
         <div style={{ marginTop: '2rem', textAlign: 'center' }}>

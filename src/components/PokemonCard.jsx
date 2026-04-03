@@ -25,13 +25,13 @@ const PokemonCard = ({ pokemon, onClick }) => {
     const [imageSrc, setImageSrc] = useState(pokemon.sprites.front_default);
 
     const types = pokemon.types.map(t => t.type.name);
-    const gradientBackground = types.length === 2
-      ? `linear-gradient(120deg, ${typeColors[types[0]]} 45%, ${typeColors[types[1]]} 55%)`
+        const gradientBackground = types.length === 2
+            ? `linear-gradient(120deg, ${typeColors[types[0]]} 35%, ${typeColors[types[1]]} 65%)`
       : typeColors[types[0]];
 
     return (
         <div
-            className="card text-center h-100"
+            className="card text-center h-100 pokemon-card"
             onClick={() => onClick?.(pokemon)}
             style={{
                 cursor: 'pointer',
@@ -44,20 +44,21 @@ const PokemonCard = ({ pokemon, onClick }) => {
                 borderRadius: '10px'
             }}
         >
-            <img
-                src={imageSrc}
-                alt={pokemon.name}
-                className="card-img-top p-3"
-                style={{ width: '100%', height: '150px', objectFit: 'contain' }}
-                onMouseEnter={() => {
-                    const baseName = pokemon.name.toLowerCase().split('-')[0];
-                    setImageSrc(`https://projectpokemon.org/images/normal-sprite/${baseName}.gif`);
-                }}
-                onMouseLeave={() => setImageSrc(pokemon.sprites.front_default)}
-            />
+            <div className="pokemon-card-image">
+                <img
+                    src={imageSrc}
+                    alt={pokemon.name}
+                    className="card-img-top"
+                    onMouseEnter={() => {
+                        const baseName = pokemon.name.toLowerCase().split('-')[0];
+                        setImageSrc(`https://projectpokemon.org/images/normal-sprite/${baseName}.gif`);
+                    }}
+                    onMouseLeave={() => setImageSrc(pokemon.sprites.front_default)}
+                />
+            </div>
             <div className="card-body">
                 <h5 className="card-title text-capitalize">{pokemon.name}</h5>
-                <p className="card-text">N.º {pokemon.id}</p>
+                <p className="card-text">No. {pokemon.id}</p>
                 <div>
                     {pokemon.types.map((t, idx) => (
                         <span

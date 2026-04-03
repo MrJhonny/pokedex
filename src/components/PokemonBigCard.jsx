@@ -22,19 +22,20 @@ ChartJS.register(
   Legend
 );
 
-// Recibe props: pokemon (objeto), onClose (función), onNext (función), onPrev (función)
-const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
+// Receives props: pokemon (object), onClose (function), onNext (function), onPrev (function)
+const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev, team = [], onAddToTeam, onRemoveFromTeam }) => {
   if (!pokemon) return null;
 
   const [showShiny, setShowShiny] = useState(false);
   const [description, setDescription] = useState('');
   const [evolutions, setEvolutions] = useState([]);
+  const [teamNotice, setTeamNotice] = useState('');
   const [isFavourite, setIsFavourite] = useState(() => {
     const stored = JSON.parse(localStorage.getItem('favourites') || '[]');
     return pokemon?.id ? stored.includes(pokemon.id) : false;
   });
 
-  // Cargar favoritos desde localStorage al montar o cambiar pokemon
+  // Load favourites from localStorage on mount or Pokemon change
   useEffect(() => {
     if (!pokemon?.id) return;
 
@@ -43,7 +44,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     console.log('Check if favourite:', pokemon.id);
   }, [pokemon?.id]);
 
-  // Actualizar localStorage cuando cambia isFavourite
+  // Update localStorage when isFavourite changes
   useEffect(() => {
     const storedFavourites = JSON.parse(localStorage.getItem('favourites') || '[]');
     if (isFavourite && !storedFavourites.includes(pokemon.id)) {
@@ -51,7 +52,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     } else if (!isFavourite && storedFavourites.includes(pokemon.id)) {
       localStorage.setItem('favourites', JSON.stringify(storedFavourites.filter(id => id !== pokemon.id)));
     }
-    // Disparar evento global para notificar actualización de favoritos
+    // Dispatch a global event to notify favourites update
     const event = new CustomEvent('favourites-updated');
     window.dispatchEvent(event);
   }, [isFavourite, pokemon.id]);
@@ -91,7 +92,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
   }, []);
 
   useEffect(() => {
-    // Fetch species data for description and evolution chain url
+    // Fetch species data for description and evolution chain URL
     const fetchSpeciesAndEvolution = async () => {
       try {
         const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemon.id}`);
@@ -119,7 +120,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
           };
           traverseChain(evoChainData.chain);
 
-          // Fetch pokemon data for each evolution to get image
+          // Fetch Pokemon data for each evolution to get the image
           const evoData = await Promise.all(
             evoNames.map(async (name) => {
               const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
@@ -143,6 +144,32 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
 
   const baseName = pokemon.name.toLowerCase().split('-')[0];
   const cryUrl = `https://play.pokemonshowdown.com/audio/cries/${baseName}.mp3`;
+  const isInTeam = team.some(member => member.id === pokemon.id);
+
+  const handleTeamToggle = () => {
+    if (isInTeam) {
+      onRemoveFromTeam && onRemoveFromTeam(pokemon.id);
+      setTeamNotice('');
+      return;
+    }
+
+    if (typeof onAddToTeam === 'function') {
+      const result = onAddToTeam(pokemon, showShiny);
+      if (result && !result.ok) {
+        if (result.reason === 'full') {
+          setTeamNotice('Team is full (max 6).');
+        } else if (result.reason === 'exists') {
+          setTeamNotice('This Pokemon is already in the team.');
+        } else {
+          setTeamNotice('Could not add to the team.');
+        }
+        setTimeout(() => setTeamNotice(''), 2000);
+      } else {
+        // setTeamNotice('Added to the team.');
+        setTimeout(() => setTeamNotice(''), 1500);
+      }
+    }
+  };
 
   const statsLabels = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
   const statsData = statsLabels.map((label) => {
@@ -181,7 +208,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
     maintainAspectRatio: false,
   };
 
-  // Efecto para detectar deslizamiento hacia abajo en modal-content
+  // Detect swipe down gesture on modal-content
   useEffect(() => {
     const modal = document.querySelector('.modal-content');
     if (!modal) return;
@@ -218,7 +245,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
       modal.style.transition = 'top 0.3s ease';
 
       if (direction && Math.abs(deltaY) > threshold) {
-        onClose(); // Solo cerrar si es gesto claro y con dirección
+        onClose(); // Only close on a clear downward gesture
       } else if (Math.abs(deltaX) > threshold) {
         if (deltaX > 0) {
           onPrev && onPrev();
@@ -285,9 +312,9 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
         </div>
 
         <React.Fragment>
-          {/* Título centrado solamente */}
+          {/* Centered title only */}
           <div className="text-center mt-4 d-none d-md-block">
-            <h2 className="text-capitalize">{pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} N°{pokemon.id}</h2>
+            <h2 className="text-capitalize">{pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} No. {pokemon.id}</h2>
             <div
               className="favourite-toggle mt-3"
               onClick={() => setIsFavourite(!isFavourite)}
@@ -325,6 +352,17 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
                 {isFavourite ? `${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} added to favourites!` : `Click to add ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} to favourites`}
               </div>
             </div>
+            <div className="mt-3">
+              <button
+                className={`btn ${isInTeam ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                onClick={handleTeamToggle}
+              >
+                {isInTeam ? 'Remove from team' : 'Add to team'}
+              </button>
+              {teamNotice && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#444' }}>{teamNotice}</div>
+              )}
+            </div>
           </div>
 
           {/* Grid 2x2 */}
@@ -335,7 +373,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
             gap: '1.5rem',
             marginTop: '1.5rem'
           }}>
-            {/* 1. Imagen y botón Ver Shiny */}
+            {/* 1. Image and Shiny toggle */}
             <div style={{ gridColumn: '1 / 2', gridRow: '1 / 2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
               <h5 className="text-center mb-2">Image</h5>
               <img
@@ -354,7 +392,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
               </div>
             </div>
 
-            {/* 2. Características */}
+            {/* 2. Characteristics */}
             <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
               <h5 className="text-center mb-2">Characteristics</h5>
               <p style={{ textAlign: 'center' }}><strong>Height:</strong> {(pokemon.height / 10).toFixed(1)} m</p>
@@ -369,7 +407,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
               <p style={{ textAlign: 'center' }}><strong>Abilities:</strong> {pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
             </div>
 
-            {/* 3. Descripción */}
+            {/* 3. Description */}
             <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3', whiteSpace: 'pre-line', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginBottom: '1.5rem' }}>
               <h5 className="text-center mb-2">Description</h5>
               {description && (
@@ -377,7 +415,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
                   <strong>Description:</strong> {description}
                 </p>
               )}
-              {/* Evoluciones SOLO EN PC, DENTRO DE DESCRIPCIÓN */}
+              {/* Evolutions only on desktop, inside description */}
               {evolutions.length > 0 && (
                 <>
                   <h5 className="text-center mb-2 d-none d-md-block">Evolution Line</h5>
@@ -418,7 +456,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
               </audio>
             </div>
 
-            {/* Evoluciones */}
+            {/* Evolutions */}
             {/* {evolutions.length > 0 && (
               <div className="d-flex justify-content-center align-items-center mt-3 flex-wrap evolution-chain" style={{ gap: '0.5rem', gridColumn: '1 / -1' }}>
                 {evolutions.map((evo, index) => (
@@ -441,7 +479,7 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
             )} */}
           </div>
 
-          {/* Layout mobile original */}
+          {/* Original mobile layout */}
           <div className="d-md-none px-3">
             <h2 className="text-capitalize text-center mt-3">{pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</h2>
             <div
@@ -480,6 +518,17 @@ const PokemonBigCard = ({ pokemon, onClose, onNext, onPrev }) => {
               >
                 {isFavourite ? `${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} added to favourites!` : `Click to add ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} to favourites`}
               </div>
+            </div>
+            <div className="text-center mt-3">
+              <button
+                className={`btn ${isInTeam ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                onClick={handleTeamToggle}
+              >
+                {isInTeam ? 'Remove from team' : 'Add to team'}
+              </button>
+              {teamNotice && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#444' }}>{teamNotice}</div>
+              )}
             </div>
             <div className="text-center mb-3">
               <button className="btn btn-warning" onClick={() => setShowShiny(!showShiny)}>

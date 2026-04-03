@@ -1,13 +1,23 @@
 import PokemonBigCard from '../components/PokemonBigCard';
 import Page from '../components/Page';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PokemonCard from '../components/PokemonCard';
 import Loader from '../components/Loader';
 import LoaderMini from '../components/LoaderMini';
 
-import './Home.css'; // opcional para estilos personalizados
+import './Home.css'; // optional custom styles
 
-const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelectedRegions, showFavouritesOnly, showHelpPage }) => {
+const Home = ({
+  searchQuery,
+  selectedTypes = [],
+  selectedRegions = [],
+  setSelectedRegions,
+  showFavouritesOnly,
+  showHelpPage,
+  team = [],
+  onAddToTeam,
+  onRemoveFromTeam,
+}) => {
   const [pokemonList, setPokemonList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +26,7 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   const [offset, setOffset] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(null);
+  const initialLoadRef = useRef(false);
 
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [inputSequence, setInputSequence] = useState('');
@@ -38,10 +49,12 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
     kalos: [650, 721],
     alola: [722, 809],
     galar: [810, 898],
-    paldea: [899, 1010], // ejemplo, según generaciones
+    paldea: [899, 1010], // example, based on generations
   };
 
   useEffect(() => {
+    if (initialLoadRef.current) return;
+    initialLoadRef.current = true;
     const loadPokemonBatch = async (batchOffset) => {
       try {
         const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=${batchOffset}`);
@@ -56,9 +69,9 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
           return unique;
         });
         setFilteredList(prev => [...prev, ...fullDetails]);
-        setOffset(prev => prev + 100);
+        setOffset(batchOffset + 100);
       } catch (err) {
-        console.error('Error al cargar los Pokémon:', err);
+        console.error('Failed to load Pokemon:', err);
         setError(true);
       } finally {
         setLoading(false);
@@ -142,7 +155,7 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
             setOffset(prev => prev + 100);
           })
           .catch(err => {
-            console.error('Error al cargar más Pokémon:', err);
+            console.error('Failed to load more Pokemon:', err);
           })
           .finally(() => {
             setLoadingMore(false);
@@ -165,10 +178,10 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
   useEffect(() => {
     const handleKeyPress = (e) => {
       setInputSequence(prev => {
-        const next = (prev + e.key).slice(-20); // limita largo
+        const next = (prev + e.key).slice(-20); // limit length
         if (next.toLowerCase().endsWith('opening')) {
           setShowEasterEgg(true);
-          setInputSequence(''); // limpiar el input
+          setInputSequence(''); // clear input
         }
         return next;
       });
@@ -205,16 +218,16 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
     <div className={`page-wrapper ${selectedPokemon ? 'bigcard-open' : ''}`}>
       <div className={`home-wrapper ${selectedPokemon ? 'no-scroll' : ''}`} style={{ paddingTop: '60px' }}>
         <div className="pokedex-bg-image"></div>
-        <div className="container mt-4 position-relative">
+        <div className="container-fluid mt-4 position-relative">
 
         {error ? (
-          <div className="text-center text-danger fw-bold">Error al cargar los datos.</div>
+          <div className="text-center text-danger fw-bold">Failed to load data.</div>
         ) : loading ? (
           <Loader />
         ) : (
-          <div className="pokemon-grid d-flex flex-wrap justify-content-center gap-4">
+          <div className="pokemon-grid">
             {filteredList.map(p => (
-              <div key={p.id} style={{ width: '200px' }}>
+              <div key={p.id}>
                 <PokemonCard pokemon={p} onClick={() => setSelectedPokemon(p)} />
               </div>
             ))}
@@ -250,6 +263,9 @@ const Home = ({ searchQuery, selectedTypes = [], selectedRegions = [], setSelect
                 }
               }}
               layoutMode={isMobile ? 'default' : 'desktopGrid'}
+              team={team}
+              onAddToTeam={onAddToTeam}
+              onRemoveFromTeam={onRemoveFromTeam}
             />
           </div>
         )}

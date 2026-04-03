@@ -4,7 +4,7 @@ const UpArrow = () => {
   const [visible, setVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detecta ancho al montar (síncrono)
+  // Detect width on mount (sync)
   useLayoutEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -12,7 +12,7 @@ const UpArrow = () => {
     checkMobile();
   }, []);
 
-  // Actualiza isMobile si se redimensiona la ventana
+  // Update isMobile on resize
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -39,7 +39,7 @@ const UpArrow = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Si es mobile no mostrar
+  // Do not show on mobile
   if (isMobile) return null;
 
   if (!visible || document.body.classList.contains('hide-uparrow')) return null;
@@ -59,11 +59,11 @@ const UpArrow = () => {
       >
         <img
           src="/pikachu-jumping.gif"
-          alt="Ir arriba"
+          alt="Back to top"
           width="80"
           height="80"
         />
-        <span className="fw-bold">Ir Arriba</span>
+        <span className="fw-bold">Back to top</span>
       </button>
     </div>
   );

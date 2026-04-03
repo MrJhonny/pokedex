@@ -18,6 +18,10 @@ function App() {
     const saved = localStorage.getItem('favourites');
     return saved ? JSON.parse(saved) : [];
   });
+  const [team, setTeam] = useState(() => {
+    const saved = localStorage.getItem('team');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [showHelpPage, setShowHelpPage] = useState(false);
 
   useEffect(() => {
@@ -33,12 +37,65 @@ function App() {
   }, [favourites]);
 
   useEffect(() => {
+    localStorage.setItem('team', JSON.stringify(team));
+  }, [team]);
+
+  useEffect(() => {
     const openHelp = () => setShowHelpPage(true);
     window.addEventListener('openHelp', openHelp);
     return () => window.removeEventListener('openHelp', openHelp);
   }, []);
 
   const closeHelpPage = () => setShowHelpPage(false);
+
+  const buildTeamEntry = (pokemon, isShiny) => {
+    const shinySprite = pokemon.sprites?.other?.['official-artwork']?.front_shiny || pokemon.sprites?.front_shiny || '';
+    const normalSprite =
+      pokemon.sprites?.other?.['official-artwork']?.front_default ||
+      pokemon.sprites?.front_default ||
+      '';
+    const baseStats = pokemon.stats.reduce((acc, stat) => {
+      if (stat.stat.name === 'special-attack') {
+        acc.specialAttack = stat.base_stat;
+      } else if (stat.stat.name === 'special-defense') {
+        acc.specialDefense = stat.base_stat;
+      } else {
+        acc[stat.stat.name] = stat.base_stat;
+      }
+      return acc;
+    }, { hp: 0, attack: 0, defense: 0, specialAttack: 0, specialDefense: 0, speed: 0 });
+
+    return {
+      id: pokemon.id,
+      name: pokemon.name,
+      types: pokemon.types.map(t => t.type.name),
+      isShiny: Boolean(isShiny),
+      sprite: isShiny ? shinySprite : normalSprite,
+      baseStats,
+    };
+  };
+
+  const addToTeam = (pokemon, isShiny) => {
+    if (!pokemon?.id) {
+      return { ok: false, reason: 'invalid' };
+    }
+    if (team.some(member => member.id === pokemon.id)) {
+      return { ok: false, reason: 'exists' };
+    }
+    if (team.length >= 6) {
+      return { ok: false, reason: 'full' };
+    }
+    setTeam(prev => [...prev, buildTeamEntry(pokemon, isShiny)]);
+    return { ok: true };
+  };
+
+  const removeFromTeam = (pokemonId) => {
+    setTeam(prev => prev.filter(member => member.id !== pokemonId));
+  };
+
+  const clearTeam = () => {
+    setTeam([]);
+  };
 
   return (
     <>
@@ -63,6 +120,9 @@ function App() {
                 onToggleFavouritesFilter={setShowFavouritesOnly}
                 showFavouritesOnly={showFavouritesOnly}
                 favourites={favourites}
+                team={team}
+                onRemoveFromTeam={removeFromTeam}
+                onClearTeam={clearTeam}
               />
             </div>
             <Home
@@ -75,6 +135,9 @@ function App() {
               showFavouritesOnly={showFavouritesOnly}
               favourites={favourites}
               setFavourites={setFavourites}
+              team={team}
+              onAddToTeam={addToTeam}
+              onRemoveFromTeam={removeFromTeam}
             />
             {!selectedPokemon && <UpArrow />}
           </div>
